@@ -50,27 +50,30 @@ export default class Annotation extends Base {
             if (!item || item.content == '') {
                 return;
             }
-            const updateAspectRatio = async (video, reset) => {
+            const updateAspectRatio = async(video, reset) => {
                 let elem = video ? $('#player') : $(`#annotation-canvas[data-id='${item.id}']`);
                 if ($("#wrapper").hasClass('fullscreen')) {
-                    let ratio = 16 / 9;
+                    let ratio = 16 / 9; // #player aspect ratio.
                     if (!this.displayoptions.usefixedratio || this.displayoptions.usefixedratio == 0) {
                         ratio = this.player.aspectratio;
                     }
                     let videowrapperaspect = videoWrapper.width() / videoWrapper.height();
-                    let gap = '- 55px';
-                    if ($("#wrapper").hasClass('no-videonav')) {
-                        gap = '';
-                    }
+                    const videowrapperwidth = videoWrapper.width();
+                    const videowrapperheight = videoWrapper.height();
+                    // Screen is wider than the video.
                     if (videowrapperaspect > ratio) {
-                        elem.css('height', `calc(100dvh ${gap})`);
-                        elem.css('width', `calc((100dvh ${gap}) * ${ratio})`);
+                        let height = videowrapperheight;
+                        let width = height * ratio;
+                        elem.css('height', height + 'px');
+                        elem.css('width', width + 'px');
                         elem.css('top', '0');
-                        elem.css('left', `calc((100dvw - (100dvh ${gap}) * ${ratio}) / 2)`);
+                        elem.css('left', (videowrapperwidth - width) / 2 + 'px');
                     } else if (videowrapperaspect < ratio) {
-                        elem.css('width', '100dvw');
-                        elem.css('height', `${100 / ratio}dvw`);
-                        elem.css('top', `calc((100dvh ${gap} - 100dvw / ${ratio}) / 2)`);
+                        let width = videowrapperwidth;
+                        let height = width / ratio;
+                        elem.css('width', width + 'px');
+                        elem.css('height', height + 'px');
+                        elem.css('top', ((videowrapperheight - height) / 2) + 'px');
                         elem.css('left', '0');
                     }
                 } else {
@@ -268,11 +271,11 @@ export default class Annotation extends Base {
          */
         const recalculatingSize = (elem) => {
             let message = $('#annotation-canvas');
-            let w = self.roundToTwo(elem.outerWidth()) / message.width() * 100;
-            let h = self.roundToTwo(elem.outerHeight()) / message.height() * 100;
-            let t = self.roundToTwo(elem.position().top) / message.height() * 100;
+            let w = elem.outerWidth() / message.width() * 100;
+            let h = elem.outerHeight() / message.height() * 100;
+            let t = elem.position().top / message.height() * 100;
             t = t < 0 ? 0 : t;
-            let l = self.roundToTwo(elem.position().left) / message.width() * 100;
+            let l = elem.position().left / message.width() * 100;
             l = l < 0 ? 0 : l;
             let z = elem.css('z-index');
             let g = elem.data('group');
@@ -326,7 +329,7 @@ export default class Annotation extends Base {
          * @param {Array} elements array of elements to render
          * @param {Number} activeids array of ids of active elements
          */
-        const renderTimelineItems = async (elements, activeids) => {
+        const renderTimelineItems = async(elements, activeids) => {
             const currentTime = await self.player.getCurrentTime();
             if (activeids === null) {
                 activeids = [];
@@ -799,7 +802,7 @@ export default class Annotation extends Base {
          * @param {Array} actives ids of active element
          * @param {Boolean} update first render or updating items
          */
-        const renderItems = async (elements, actives, update) => {
+        const renderItems = async(elements, actives, update) => {
             const currentTime = await self.player.getCurrentTime();
             if (!update) { // Clear the annotation-canvas if it is a new start.
                 $videoWrapper.find(`.annotation-wrapper`).remove();
@@ -837,7 +840,7 @@ export default class Annotation extends Base {
                 });
 
                 let count = 0;
-                elements.forEach(async (item) => {
+                elements.forEach(async(item) => {
                     let prop = item.properties;
                     let type = item.type;
                     let id = item.id;
