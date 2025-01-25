@@ -81,16 +81,16 @@
 }
 
 #page-mod-interactivevideo-interactions #annotation-canvas .annotation-wrapper.active {
-    outline: 2px dotted var(--ivdanger);
+    outline: 1px solid var(--ivdanger);
 }
 
 #page-mod-interactivevideo-interactions #annotation-canvas .annotation-wrapper.active:focus-visible,
 #page-mod-interactivevideo-interactions #annotation-canvas .annotation-wrapper.active:focus {
-    outline: 2px dotted var(--ivdanger);
+    outline: 1px solid var(--ivdanger);
 }
 
 .path-mod-interactivevideo #annotation-canvas .annotation-wrapper {
-    outline: 2px dotted transparent;
+    outline: 1px solid transparent;
 }
 
 #page-mod-interactivevideo-view #annotation-canvas .annotation-wrapper.resizable:hover {
