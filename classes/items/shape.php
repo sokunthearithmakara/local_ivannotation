@@ -119,24 +119,30 @@ class shape extends \core_form\dynamic_form {
             'client'
         );
 
-        $mform->addElement(
+        $element = [];
+        $element[] = $mform->createElement(
             'text',
             'timestamp',
-            get_string('gototimestamp', 'local_ivannotation'),
+            '',
             [
-                'size' => 100,
+                'size' => 25,
+                'class' => 'timestamp-input',
+                'readonly' => 'readonly',
                 'placeholder' => '00:00:00',
             ]
         );
         $mform->setType('timestamp', PARAM_TEXT);
-        $mform->setDefault('timestamp', '00:00:00');
-        $mform->addRule(
-            'timestamp',
-            get_string('invalidtimestamp', 'mod_interactivevideo'),
-            'regex',
-            '/^([0-9]{1,2}:)?[0-5]?[0-9]:[0-5][0-9]$/',
-            'client'
-        );
+        $element[] = $mform->createElement('button', 'pickatime', '<i class="bi bi-stopwatch"></i>', [
+            'class' => 'pickatime',
+            'title' => get_string('pickatime', 'ivplugin_contentbank'),
+            'data-field' => 'timestamp',
+        ]);
+        $element[] = $mform->createElement('button', 'resettime', '<i class="bi bi-trash3 text-danger"></i>', [
+            'class' => 'resettime',
+            'title' => get_string('resettime', 'ivplugin_contentbank'),
+            'data-field' => 'timestamp',
+        ]);
+        $mform->addGroup($element, 'timestampgroup', get_string('gototimestamp', 'local_ivannotation'), '', false);
 
         $mform->addElement(
             'text',

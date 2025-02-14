@@ -42,7 +42,7 @@ class main extends \ivplugin_richtext\main {
             'description' => get_string('plugindescription', 'local_ivannotation'),
             'author' => 'tsmakara',
             'authorlink' => 'mailto:sokunthearithmakara@gmail.com',
-            'tutorial' => 'https://www.youtube.com/watch?v=3QJ1J6J1Z3Y',
+            'tutorial' => get_string('tutorialurl', 'local_ivannotation'),
             'stringcomponent' => 'local_ivannotation',
         ];
     }

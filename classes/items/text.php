@@ -160,6 +160,8 @@ class text extends \core_form\dynamic_form {
         // Add default font.
         array_unshift($availablefonts, [get_string('default', 'mod_interactivevideo'), '']);
         $availablefonts = array_column($availablefonts, 0, 1);
+        // Trim font names.
+        $availablefonts = array_map('trim', $availablefonts);
         $mform->addElement('select', 'textfont', get_string('textfont', 'local_ivannotation'), $availablefonts);
         $mform->setType('textfont', PARAM_TEXT);
 

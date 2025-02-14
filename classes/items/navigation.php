@@ -81,23 +81,33 @@ class navigation extends \core_form\dynamic_form {
         $mform->setType('label', PARAM_TEXT);
         $mform->addRule('label', get_string('required'), 'required', null, 'client');
 
-        $mform->addElement(
+        $element = [];
+        $element[] = $mform->createElement(
             'text',
             'timestamp',
-            get_string('timestamp', 'local_ivannotation'),
-            ['size' => 100, 'placeholder' => '00:00:00']
+            '',
+            [
+                'size' => 25,
+                'class' => 'timestamp-input',
+                'readonly' => 'readonly',
+                'placeholder' => '00:00:00',
+            ]
         );
         $mform->setType('timestamp', PARAM_TEXT);
-        $mform->addRule('timestamp', get_string('required'), 'required', null, 'client');
-        $mform->addRule(
-            'timestamp',
-            get_string('invalidtimestampformat', 'local_ivannotation'),
-            'regex',
-            '/^([0-9]{2}):([0-5][0-9]):([0-5][0-9])(\.\d{2})?$/',
-            'client'
-        );
-        $mform->setDefault('timestamp', '00:00:00');
-
+        $element[] = $mform->createElement('button', 'pickatime', '<i class="bi bi-stopwatch"></i>', [
+            'class' => 'pickatime',
+            'title' => get_string('pickatime', 'ivplugin_contentbank'),
+            'data-field' => 'timestamp',
+        ]);
+        $element[] = $mform->createElement('button', 'resettime', '<i class="bi bi-trash3 text-danger"></i>', [
+            'class' => 'resettime',
+            'title' => get_string('resettime', 'ivplugin_contentbank'),
+            'data-field' => 'timestamp',
+        ]);
+        $mform->addGroup($element, 'timestampgroup', get_string('gototimestamp', 'local_ivannotation'), '', false);
+        $mform->addGroupRule('timestampgroup', ['timestamp' => [
+            [get_string('required'), 'required', 'client'],
+        ]]);
         $mform->addElement('select', 'style', get_string('style', 'local_ivannotation'), [
             'btn-danger' => get_string('danger', 'local_ivannotation'),
             'btn-warning' => get_string('warning', 'local_ivannotation'),
@@ -173,4 +183,3 @@ class navigation extends \core_form\dynamic_form {
         ]);
     }
 }
-

@@ -15,23 +15,29 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information for Annotation
+ * Upgrade steps for local ivannotation
+ *
+ * Documentation: {@link https://moodledev.io/docs/guides/upgrade}
  *
  * @package    local_ivannotation
+ * @category   upgrade
  * @copyright  2024 Sokunthearith Makara <sokunthearithmakara@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
-$plugin->component    = 'local_ivannotation';
-$plugin->release      = '1.0.2';
-$plugin->version      = 2025021300;
-$plugin->requires     = 2022112800;
-$plugin->supported    = [401, 405];
-$plugin->maturity     = MATURITY_STABLE;
-$plugin->dependencies = [
-    'interactivevideo' => 2025011305,
-    'ivplugin_richtext' => 2024071500,
-];
-
+/**
+ * Execute the plugin upgrade steps from the given old version.
+ *
+ * @param int $oldversion
+ * @return bool
+ */
+function xmldb_local_ivannotation_upgrade($oldversion) {
+    global $DB;
+    if ($oldversion < 2025021300) {
+        $sql = "UPDATE {interactivevideo_items}
+                SET content = REPLACE(content, '\"timestamp\":\"00:00:00\"', '\"timestamp\":\"\"')
+                WHERE type = 'annotation'";
+        $DB->execute($sql);
+    }
+    return true;
+}

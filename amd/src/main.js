@@ -1,3 +1,4 @@
+/* eslint-disable complexity */
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -24,7 +25,6 @@ import $ from 'jquery';
 import Base from 'mod_interactivevideo/type/base';
 import Ajax from 'core/ajax';
 import Templates from 'core/templates';
-import {dispatchEvent} from 'core/event_dispatcher';
 import ModalForm from 'core_form/modalform';
 import {notifyFilterContentUpdated as notifyFilter} from 'core_filters/events';
 import Notification from 'core/notification';
@@ -550,7 +550,7 @@ export default class Annotation extends Base {
                         }
                     });
 
-                    dispatchEvent('timeupdate', {time: currentTime});
+                    self.dispatchEvent('timeupdate', {time: currentTime});
                     return true;
                 }
             });
@@ -574,24 +574,26 @@ export default class Annotation extends Base {
 
         const renderImage = (wrapper, item, prop, id, position) => {
             const parts = prop.timestamp.split(':');
-            const timestamp = Number(parts[0]) * 3600 + Number(parts[1]) * 60 + Number(parts[2]);
+            const timestamp = parts.length > 1 ? Number(parts[0]) * 3600 + Number(parts[1]) * 60 + Number(parts[2]) : -1;
             if (prop.gotourl != '') {
                 wrapper.append(`<a href="${prop.gotourl}" target="_blank"><img src="${prop.url}" id="${id}"
                          class="annotation-content w-100 ${prop.shadow == '1' ? 'shadow' : ''}"
                          ${prop.rounded == 1 ? 'style="border-radius:1em;"' : ''} alt="${prop.formattedalttext}"/></a>`);
             } else {
                 wrapper.append(`<img src="${prop.url}" id="${id}"
-                             ${timestamp > 0 ? ' data-timestamp="' + timestamp + '"' : ''}
                               class="annotation-content w-100 ${prop.shadow == '1' ? 'shadow' : ''}
                               ${timestamp > 0 ? 'cursor-pointer' : ''}"
                                ${prop.rounded == 1 ? 'style="border-radius:1em;"' : ''} alt="${prop.formattedalttext}"/>`);
             }
             if (!self.isEditMode()) {
-                if (prop.gotourl == '' && timestamp == 0) {
+                if (prop.gotourl == '' && timestamp < 0) {
                     wrapper.removeClass('resizable');
                     wrapper.addClass('no-pointer');
                 } else {
                     wrapper.addClass('clickable');
+                }
+                if (timestamp >= 0) {
+                    wrapper.attr('data-timestamp', timestamp);
                 }
             }
             wrapper.css(position);
@@ -617,14 +619,18 @@ export default class Annotation extends Base {
             const timestamp = Number(parts[0]) * 3600 + Number(parts[1]) * 60 + Number(parts[2]);
             wrapper.append(`<div class="d-flex h-100"><span id="${id}" tabindex="0"
                          class="btn ${prop.style} ${prop.rounded == '1' ? 'btn-rounded' : 'rounded-0'}
-                          annotation-content text-nowrap ${prop.shadow == '1' ? 'shadow' : ''}"
-                           data-timestamp="${timestamp}">${prop.formattedlabel}</span></div>`);
+                          annotation-content text-nowrap ${prop.shadow == '1' ? 'shadow' : ''}">
+                          ${prop.formattedlabel}</span></div>`);
             position.width = 0;
             wrapper.css(position);
             $videoWrapper.append(wrapper);
+            if (!self.isEditMode()) {
+                wrapper.attr('data-timestamp', timestamp);
+            }
             recalculatingTextSize(wrapper, true);
         };
 
+        // Deprecated
         const renderText = (wrapper, item, prop, id, position) => {
             if (prop.url != undefined && prop.url != '') {
                 wrapper.append(`<a id="${id}"
@@ -659,12 +665,16 @@ export default class Annotation extends Base {
         const renderTextBlock = (wrapper, item, prop, id, position) => {
             let textparts = prop.formattedlabel.split('\r\n');
             let textblock = '<div class="d-flex flex-column">';
+            const timestamp = prop.timestamp.split(':');
+            const time = timestamp.length > 1 ? Number(timestamp[0]) * 3600 + Number(timestamp[1]) * 60 + Number(timestamp[2])
+            : -1;
             textparts.forEach((part) => {
                 if (part.trim() == '') {
                     return;
                 }
                 textblock += `<span class="text-row text-nowrap text-${prop.alignment}"
-                         style="font-family: ${prop.textfont != '' ? prop.textfont : 'inherit'}">${part}</span>`;
+                         style='font-family: ${prop.textfont != '' ? prop.textfont : 'inherit'}'>
+                         ${part}</span>`;
             });
             textblock += '</div>';
             if (prop.url != undefined && prop.url != '') {
@@ -674,11 +684,18 @@ export default class Annotation extends Base {
                 wrapper.addClass('clickable');
             } else {
                 if (!self.isEditMode() || !$('#content-region').hasClass('no-pointer-events')) {
-                    wrapper.addClass('no-pointer');
+                    if (time >= 0) {
+                        wrapper.addClass('cursor-pointer');
+                    } else {
+                        wrapper.addClass('no-pointer');
+                    }
                 }
                 wrapper.append(`<div id="${id}"
-                             class="annotation-content ${prop.shadow == '1' ? 'text-shadow' : ''}
-                             ">${textblock}</div>`);
+                             class="annotation-content ${prop.shadow == '1' ? 'text-shadow' : ''}">${textblock}</div>`);
+
+                if (time >= 0) {
+                    wrapper.attr('data-timestamp', time);
+                }
             }
             wrapper.position.width = 0;
             wrapper.css(position);
@@ -702,7 +719,7 @@ export default class Annotation extends Base {
 
         const renderShape = (wrapper, item, prop, id, position) => {
             const parts = prop.timestamp.split(':');
-            const timestamp = Number(parts[0]) * 3600 + Number(parts[1]) * 60 + Number(parts[2]);
+            const timestamp = parts.length > 1 ? Number(parts[0]) * 3600 + Number(parts[1]) * 60 + Number(parts[2]) : -1;
             if (prop.gotourl != '') {
                 wrapper.append(`<a href="${prop.gotourl}" target="_blank"><div id="${id}"
                          class="annotation-content ${prop.shadow == '1' ? 'shadow' : ''}"
@@ -710,16 +727,17 @@ export default class Annotation extends Base {
                 wrapper.addClass('clickable');
             } else {
                 if (!self.isEditMode()) {
-                    if (timestamp == 0) {
+                    if (timestamp < 0) {
                         wrapper.addClass('no-pointer');
                     } else {
                         wrapper.addClass('clickable');
                     }
                 }
-                wrapper.append(`<div id="${id}" class="annotation-content ${prop.shadow == '1' ? 'shadow' : ''}
-                             ${timestamp > 0 ? 'cursor-pointer' : ''}"
-                         ${timestamp > 0 ? 'data-timestamp="' + timestamp + '"' : ''}
+                wrapper.append(`<div id="${id}" class="annotation-content ${prop.shadow == '1' ? 'shadow' : ''}"
                          style="width: 100%; height: 100%;"></div>`);
+                if (timestamp >= 0) {
+                    wrapper.attr('data-timestamp', timestamp);
+                }
             }
             wrapper.css(position);
             const style = {
@@ -851,6 +869,25 @@ export default class Annotation extends Base {
                         wrapper.addClass('resizable');
                         wrapper.attr('tabindex', 0);
                     }
+                    // Correct the position in player mode.
+                    if (!self.isEditMode()) {
+                        const left = position.left.replace('%', '');
+                        const top = position.top.replace('%', '');
+                        const width = position.width.replace('%', '');
+                        const height = position.height ? position.height.replace('%', '') : 0;
+                        if (left < 0.01) {
+                            position.left = '0%';
+                        }
+                        if (top < 0.01) {
+                            position.top = '0%';
+                        }
+                        if (width > 99.5) {
+                            position.width = '100%';
+                        }
+                        if (height > 99.5) {
+                            position.height = '100%';
+                        }
+                    }
                     switch (type) {
                         case 'image':
                             renderImage(wrapper, item, prop, id, position);
@@ -899,7 +936,7 @@ export default class Annotation extends Base {
 
                     if (count == elements.length) {
                         // Always trigger the timeupdate event after all items are rendered.
-                        dispatchEvent('timeupdate', {time: self.roundToTwo(currentTime)});
+                        self.dispatchEvent('timeupdate', {time: self.roundToTwo(currentTime)});
 
                         if (self.isEditMode()) {
                             if ($('#annotation-btns').is(":visible") == false) {
@@ -1106,7 +1143,7 @@ export default class Annotation extends Base {
                             });
 
                             await renderTimelineItems(elements, actives);
-                            dispatchEvent('timeupdate', {time: self.roundToTwo(currentTime)});
+                            self.dispatchEvent('timeupdate', {time: self.roundToTwo(currentTime)});
                         }
                     }
 
@@ -1130,13 +1167,6 @@ export default class Annotation extends Base {
                         switch (type) {
                             case 'navigation':
                             case 'image':
-                            case 'shape':
-                                var navigation = wrapper.find('.annotation-content');
-                                if (self.isBetweenStartAndEnd(navigation.data('timestamp'))) {
-                                    await self.player.seek(navigation.data('timestamp'));
-                                    self.player.play();
-                                }
-                                break;
                             case 'hotspot':
                                 await self.player.pause();
                                 var hotspotid = wrapper.data('item');
@@ -1182,6 +1212,12 @@ export default class Annotation extends Base {
                                     wrapper.popover('show');
                                 }
                                 break;
+                        }
+
+                        if ($(this).data('timestamp') != undefined) {
+                            let timestamp = $(this).data('timestamp');
+                            self.player.seek(timestamp);
+                            self.player.play();
                         }
                     });
 
@@ -1425,7 +1461,7 @@ export default class Annotation extends Base {
             e.preventDefault();
             e.stopImmediatePropagation();
             self.player.seek($(this).data('start'));
-            dispatchEvent('timeupdate', {time: $(this).data('start')});
+            self.dispatchEvent('timeupdate', {time: $(this).data('start')});
         });
 
         $playerWrapper.off('click', `#annotation-btns #save`).on('click', `#annotation-btns #save`, function(e) {
@@ -1454,7 +1490,7 @@ export default class Annotation extends Base {
                     draftStatus = null;
                     tracking = [];
                     $('#annotation-btns #redo, #annotation-btns #undo').attr('disabled', 'disabled');
-                    dispatchEvent('annotationupdated', {
+                    self.dispatchEvent('annotationupdated', {
                         annotation: updated,
                         action: 'edit',
                     });
@@ -1604,29 +1640,6 @@ export default class Annotation extends Base {
                 editform.modal.modal.draggable({
                     handle: ".modal-header",
                 });
-                if (type == 'navigation' || type == 'image' || type == 'shape') {
-                    $(document).on('change', '.modal [name="timestamp"]', function(e) {
-                        e.preventDefault();
-                        let parts = $(this).val().split(':');
-                        let timestamp = Number(parts[0]) * 3600 + Number(parts[1]) * 60 + Number(parts[2]);
-                        if (!self.isBetweenStartAndEnd(timestamp)) {
-                            let message = M.util.get_string('timemustbebetweenstartandendtime', 'mod_interactivevideo', {
-                                "start": self.convertSecondsToHMS(self.start),
-                                "end": self.convertSecondsToHMS(self.end),
-                            });
-                            self.addNotification(message);
-                            $(this).val($(this).attr('data-initial-value'));
-                            return;
-                        }
-
-                        // Make sure the timestamp is not in the skip segment.
-                        if (self.isInSkipSegment(timestamp)) {
-                            self.addNotification(M.util.get_string('interactionisbetweentheskipsegment', 'mod_interactivevideo'));
-                            $(this).val($(this).attr('data-initial-value'));
-                            return;
-                        }
-                    });
-                }
             });
 
             editform.addEventListener(editform.events.FORM_SUBMITTED, (e) => {
@@ -1975,7 +1988,7 @@ export default class Annotation extends Base {
                         getItems(false);
                         document.querySelector('.annotation-wrapper.active').focus();
                         updatePositionInfo($videoWrapper.find(`.annotation-wrapper[data-item="${newItem.id}"]`));
-                        dispatchEvent('timeupdate', {time: currentTime});
+                        self.dispatchEvent('timeupdate', {time: currentTime});
                         saveTracking(newItems);
                     }, 500);
                 }
@@ -2059,6 +2072,8 @@ export default class Annotation extends Base {
             }
             return true;
         });
+
+        self.timepicker();
     }
 
     /**
@@ -2139,7 +2154,7 @@ export default class Annotation extends Base {
         }])[0];
 
         let newAnnotation = JSON.parse(ajax.data);
-        dispatchEvent('annotationupdated', {
+        self.dispatchEvent('annotationupdated', {
             annotation: newAnnotation,
             action: 'add'
         });

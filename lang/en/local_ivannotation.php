@@ -108,6 +108,7 @@ $string['timemustbebetweenstartandendtime'] = 'Time must be within the start ({$
 $string['timestamp'] = 'Timestamp';
 $string['title'] = 'Title';
 $string['transparent'] = 'Transparent';
+$string['tutorialurl'] = 'https://www.youtube.com/watch?v=k8jbexIQnl0';
 $string['ungroup'] = 'Ungroup';
 $string['unsavedchange'] = 'Unsaved changes';
 $string['unsavedchangeconfirm'] = 'You have unsaved changes. Click Save to commit changes. Click Cancel to discard changes.';

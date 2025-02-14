@@ -37,6 +37,7 @@
 #page-mod-interactivevideo-interactions #annotation-btns .btn {
     height: 40px;
     transition: all ease-in-out 300ms;
+    border: 0;
 }
 
 #page-mod-interactivevideo-interactions #annotation-btns .btn.active {
@@ -49,6 +50,7 @@
     border-bottom: 3px solid var(--ivdark);
     padding-bottom: 0.5rem;
     color: var(--ivprimary);
+    background: transparent;
 }
 
 .path-mod-interactivevideo #annotation-canvas .annotation-wrapper {

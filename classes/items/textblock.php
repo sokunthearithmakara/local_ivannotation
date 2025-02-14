@@ -51,6 +51,7 @@ class textblock extends \core_form\dynamic_form {
         $data->id = $this->optional_param('id', 0, PARAM_INT);
         $data->contextid = $this->optional_param('contextid', null, PARAM_INT);
         $data->annotationid = $this->optional_param('annotationid', null, PARAM_INT);
+        $data->timestamp = $this->optional_param('timestamp', null, PARAM_TEXT);
         $data->start = $this->optional_param('start', null, PARAM_FLOAT);
         $data->end = $this->optional_param('end', null, PARAM_FLOAT);
         $data->label = $this->optional_param('label', null, PARAM_TEXT);
@@ -152,6 +153,31 @@ class textblock extends \core_form\dynamic_form {
             'client'
         );
 
+        $element = [];
+        $element[] = $mform->createElement(
+            'text',
+            'timestamp',
+            '',
+            [
+                'size' => 25,
+                'class' => 'timestamp-input',
+                'readonly' => 'readonly',
+                'placeholder' => '00:00:00',
+            ]
+        );
+        $mform->setType('timestamp', PARAM_TEXT);
+        $element[] = $mform->createElement('button', 'pickatime', '<i class="bi bi-stopwatch"></i>', [
+            'class' => 'pickatime',
+            'title' => get_string('pickatime', 'ivplugin_contentbank'),
+            'data-field' => 'timestamp',
+        ]);
+        $element[] = $mform->createElement('button', 'resettime', '<i class="bi bi-trash3 text-danger"></i>', [
+            'class' => 'resettime',
+            'title' => get_string('resettime', 'ivplugin_contentbank'),
+            'data-field' => 'timestamp',
+        ]);
+        $mform->addGroup($element, 'timestampgroup', get_string('gototimestamp', 'local_ivannotation'), '', false);
+
         $mform->addElement(
             'text',
             'textcolor',
@@ -167,6 +193,8 @@ class textblock extends \core_form\dynamic_form {
         $availablefonts = get_config('mod_interactivevideo', 'fontfamilies');
         $availablefonts = explode("\n", $availablefonts);
         $availablefonts = array_map(function ($font) {
+            // Trim font name.
+            $font = trim($font);
             $font = explode('=', $font);
             return $font;
         }, $availablefonts);
