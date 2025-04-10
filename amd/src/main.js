@@ -603,7 +603,7 @@ export default class Annotation extends Base {
 
         const renderFile = (wrapper, item, prop, id, position) => {
             let wrapperhtml = `<a id="${id}"
-                    class="btn ${prop.style} ${prop.rounded == '1' ? 'btn-rounded' : 'rounded-0'}
+                    class="btn ${prop.style} ${prop.rounded == '1' ? 'btn-rounded' : 'iv-rounded-0'}
                     annotation-content text-nowrap ${prop.shadow == '1' ? 'shadow' : ''} rotatey-180" href="${prop.url}"
                      target="_blank"><i class="bi bi-paperclip fs-unset"></i>${prop.formattedlabel != "" ?
                     `<span style="margin-left:0.25em;">${prop.formattedlabel}` : ''}</a>`;
@@ -618,7 +618,7 @@ export default class Annotation extends Base {
             const parts = prop.timestamp.split(':');
             const timestamp = Number(parts[0]) * 3600 + Number(parts[1]) * 60 + Number(parts[2]);
             wrapper.append(`<div class="d-flex h-100"><span id="${id}" tabindex="0"
-                         class="btn ${prop.style} ${prop.rounded == '1' ? 'btn-rounded' : 'rounded-0'}
+                         class="btn ${prop.style} ${prop.rounded == '1' ? 'btn-rounded' : 'iv-rounded-0'}
                           annotation-content text-nowrap ${prop.shadow == '1' ? 'shadow' : ''}">
                           ${prop.formattedlabel}</span></div>`);
             position.width = 0;
@@ -667,12 +667,12 @@ export default class Annotation extends Base {
             let textblock = '<div class="d-flex flex-column">';
             const timestamp = prop.timestamp.split(':');
             const time = timestamp.length > 1 ? Number(timestamp[0]) * 3600 + Number(timestamp[1]) * 60 + Number(timestamp[2])
-            : -1;
+                : -1;
             textparts.forEach((part) => {
                 if (part.trim() == '') {
                     return;
                 }
-                textblock += `<span class="text-row text-nowrap text-${prop.alignment}"
+                textblock += `<span class="text-row text-nowrap iv-text-${prop.alignment}"
                          style='font-family: ${prop.textfont != '' ? prop.textfont : 'inherit'}'>
                          ${part}</span>`;
             });
@@ -772,21 +772,40 @@ export default class Annotation extends Base {
 
             if (!self.isEditMode()) {
                 if (prop.usemodal == '1') {
-                    wrapper.attr({
-                        'data-toggle': 'modal',
-                    });
+                    if (self.isBS5) {
+                        wrapper.attr({
+                            'data-bs-toggle': 'modal',
+                        });
+                    } else {
+                        wrapper.attr({
+                            'data-toggle': 'modal',
+                        });
+                    }
                 } else {
-                    wrapper.attr({
+                    let attr = {
                         'tabindex': -1,
-                        'data-trigger': 'manual',
-                        'data-boundary': 'viewport',
-                        'data-placement': 'auto',
-                        'data-html': 'true',
-                        'data-content': '<div class="loader"></div>',
-                        'data-title': prop.formattedtitle
-                            + `<i class="bi bi-x-circle-fill ml-auto popover-dismiss cursor-pointer"
-                                     style="font-size:1.5em;"></i>`,
-                    });
+                    };
+                    if (self.isBS5) {
+                        attr['data-bs-trigger'] = 'manual';
+                        attr['data-bs-boundary'] = 'viewport';
+                        attr['data-bs-placement'] = 'auto';
+                        attr['data-bs-html'] = 'true';
+                        attr['data-bs-content'] = '<div class="loader"></div>';
+                        attr['data-bs-title'] = prop.formattedtitle
+                            + `<i class="bi bi-x-circle-fill iv-ml-auto popover-dismiss cursor-pointer"
+                                     style="font-size:1.5em;"></i>`;
+                    } else {
+                        attr['data-trigger'] = 'manual';
+                        attr['data-boundary'] = 'viewport';
+                        attr['data-placement'] = 'auto';
+                        attr['data-html'] = 'true';
+                        attr['data-content'] = '<div class="loader"></div>';
+                        attr['data-title'] = prop.formattedtitle
+                            + `<i class="bi bi-x-circle-fill iv-ml-auto popover-dismiss cursor-pointer"
+                                     style="font-size:1.5em;"></i>`;
+                    }
+
+                    wrapper.attr(attr);
 
                     wrapper.popover({
                         container: '#wrapper',
@@ -796,7 +815,7 @@ export default class Annotation extends Base {
                                  <h3 class="popover-header d-flex justify-content-between"></h3>
                                  <div class="popover-body rounded"></div>${prop.url != '' ?
                                 `<div class="popup-footer bg-light p-2 rounded-bottom"><a href="${prop.url}"
-                                      class="d-block w-100 text-right rotatex-360" target="_blank">
+                                      class="d-block w-100 iv-text-right rotatex-360" target="_blank">
                                       <i class="bi bi-arrow-right"><i></i></i></a></div>` : ''}</div>`,
                     });
 
@@ -1171,7 +1190,7 @@ export default class Annotation extends Base {
                                 await self.player.pause();
                                 var hotspotid = wrapper.data('item');
                                 var hotspot = items.find(x => x.id == hotspotid);
-                                var viewertype = wrapper.data('toggle');
+                                var viewertype = wrapper.data('toggle') || wrapper.data('bs-toggle');
                                 if (viewertype == 'modal') {
                                     let title = hotspot.properties.formattedtitle;
                                     let content = hotspot.properties.content.text;
@@ -1180,10 +1199,11 @@ export default class Annotation extends Base {
                                 aria-labelledby="annotation-modal"
                              aria-hidden="true" data-backdrop="static" data-keyboard="false">
                              <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
-                                <div class="modal-content rounded-lg">
-                                    <div class="modal-header d-flex align-items-center shadow-sm pr-0" id="title">
+                                <div class="modal-content iv-rounded-lg">
+                                    <div class="modal-header d-flex align-items-center shadow-sm iv-iv-pr-0" id="title">
                                         <h5 class="modal-title text-truncate mb-0">${title}</h5>
-                                        <button class="btn mx-2 p-0 close" aria-label="Close" data-dismiss="modal">
+                                        <button class="btn mx-2 p-0 close" aria-label="Close"
+                                         data${self.isBS5 ? '-bs' : ''}-dismiss="modal">
                                             <i class="bi bi-x-lg fa-fw" style="font-size: x-large;"></i>
                                         </button>
                                     </div>
@@ -1191,7 +1211,7 @@ export default class Annotation extends Base {
                                     <div class="loader"></div>
                                     </div>
                                     ${url != '' ? `<div class="modal-footer bg-light p-2 rounded-bottom">
-                                        <a href="${url}" class="d-block w-100 text-right rotatex-360" target="_blank">
+                                        <a href="${url}" class="d-block w-100 iv-text-right rotatex-360" target="_blank">
                                         <i class="bi bi-arrow-right"><i></i></i></a></div>` : ''}
                                     </div>
                                 </div>
