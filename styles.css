@@ -170,9 +170,13 @@
     text-align: center;
     height: 25px;
     cursor: pointer;
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: center;
+}
+
+.path-mod-interactivevideo #annotation-canvas .annotation-wrapper[data-type="video"]:hover .dismiss-btn {
+    display: flex;
 }
 
 .path-mod-interactivevideo #annotation-canvas .annotation-wrapper[data-type="video"] .dismiss-btn:hover {

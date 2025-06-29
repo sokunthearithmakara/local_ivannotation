@@ -750,7 +750,7 @@ export default class Annotation extends Base {
             let srcType = isAudio ? 'audio' : 'video';
             wrapper.append(`<${srcType} id="${id}" class="${prop.muted == 1 ? 'muted' : ''} w-100
                 ${prop.shadow == 1 ? 'shadow' : ''}" ${prop.muted == 1 ? 'muted' : ''}
-                preload="true" src="${prop.url}" style="border-radius: ${prop.rounded == 1 ? '1em' : '0'}"
+                preload="true" src="${prop.url}" style="overflow: hidden; border-radius: ${prop.rounded == 1 ? '1em' : '0'}"
                 disablePictureInPicture/></${srcType}><div class="annotation-content w-100 h-100 position-absolute top-0
                 ${type == 'audio' ? 'bg-light' : ''}"></div>`);
             let video = wrapper.find(srcType)[0];
@@ -784,11 +784,16 @@ export default class Annotation extends Base {
 
             // Adjust time to sync.
             $(video).on('playing', async function() {
+                wrapper.removeClass('bg-light');
                 let t = await self.player.getCurrentTime();
                 let videoTime = video.currentTime + prop.start;
                 if (Math.abs(t - videoTime) > 0.5) {
                     video.currentTime = t - prop.start;
                 }
+            });
+
+            $(video).on('waiting', async function() {
+                wrapper.addClass('bg-light');
             });
         };
 
