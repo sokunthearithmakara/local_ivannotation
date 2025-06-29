@@ -54,7 +54,9 @@ class main extends \ivplugin_richtext\main {
      * @return string The content.
      */
     public function get_content($arg) {
-        global $CFG;
+        global $CFG, $PAGE;
+        $context = \context::instance_by_id($arg["contextid"]);
+        $PAGE->set_context($context);
         $content = $arg["content"];
         $id = $arg["id"];
         $contextid = $arg["contextid"];

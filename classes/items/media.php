@@ -74,12 +74,16 @@ class media extends \core_form\dynamic_form {
         }
 
         $data->media = $newdraftitemid;
-        $data->style = $this->optional_param('style', null, PARAM_TEXT);
         $data->rounded = $this->optional_param('rounded', 0, PARAM_INT);
+        $data->muted = $this->optional_param('muted', 0, PARAM_INT);
         $data->shadow = $this->optional_param('shadow', 0, PARAM_INT);
         $data->label = $this->optional_param('label', null, PARAM_TEXT);
         $data->gotourl = $this->optional_param('gotourl', null, PARAM_URL);
         $data->timestamp = $this->optional_param('timestamp', '', PARAM_TEXT);
+        $data->freesize = $this->optional_param('freesize', 0, PARAM_INT);
+        $data->size = $this->optional_param('size', 0, PARAM_INT);
+        $data->vposition = $this->optional_param('vposition', 'bottom-right', PARAM_TEXT);
+        $data->dismissable = $this->optional_param('dismissable', 0, PARAM_INT);
         $this->set_data($data);
     }
 
@@ -150,6 +154,10 @@ class media extends \core_form\dynamic_form {
 
         if ($type == 'image') {
             $filemanageroptions['accepted_types'] = ['web_image'];
+        } else if ($type == 'audio') {
+            $filemanageroptions['accepted_types'] = ['.wav', '.mp4', '.m4a'];
+        } else if ($type == 'video') {
+            $filemanageroptions['accepted_types'] = ['.mp4'];
         }
 
         $mform->addElement('hidden', 'type', $type);
@@ -167,29 +175,16 @@ class media extends \core_form\dynamic_form {
         );
         $mform->addRule('media', get_string('required'), 'required', null, 'client');
 
-        $mform->addElement('select', 'style', get_string('style', 'local_ivannotation'), [
-            'btn-danger' => get_string('danger', 'local_ivannotation'),
-            'btn-warning' => get_string('warning', 'local_ivannotation'),
-            'btn-success' => get_string('success', 'local_ivannotation'),
-            'btn-primary' => get_string('primary', 'local_ivannotation'),
-            'btn-secondary' => get_string('secondary', 'local_ivannotation'),
-            'btn-info' => get_string('info', 'local_ivannotation'),
-            'btn-light' => get_string('light', 'local_ivannotation'),
-            'btn-dark' => get_string('dark', 'local_ivannotation'),
-            'btn-outline-danger' => get_string('dangeroutline', 'local_ivannotation'),
-            'btn-outline-warning' => get_string('warningoutline', 'local_ivannotation'),
-            'btn-outline-success' => get_string('successoutline', 'local_ivannotation'),
-            'btn-outline-primary' => get_string('primaryoutline', 'local_ivannotation'),
-            'btn-outline-secondary' => get_string('secondaryoutline', 'local_ivannotation'),
-            'btn-outline-info' => get_string('infooutline', 'local_ivannotation'),
-            'btn-outline-light' => get_string('lightoutline', 'local_ivannotation'),
-            'btn-outline-dark' => get_string('darkoutline', 'local_ivannotation'),
-            'btn-transparent' => get_string('transparent', 'local_ivannotation'),
-        ]);
-        $mform->setDefault('style', 'btn-primary');
-        $mform->hideIf('style', 'type', 'eq', 'image');
-
         $elementarray = [];
+        $elementarray[] = $mform->createElement(
+            'advcheckbox',
+            'muted',
+            '',
+            get_string('muted', 'local_ivannotation'),
+            ['group' => 1],
+            [0, 1]
+        );
+
         $elementarray[] = $mform->createElement(
             'advcheckbox',
             'rounded',
@@ -208,7 +203,30 @@ class media extends \core_form\dynamic_form {
             [0, 1]
         );
 
+        $elementarray[] = $mform->createElement(
+            'advcheckbox',
+            'freesize',
+            '',
+            get_string('freesize', 'local_ivannotation'),
+            ['group' => 1],
+            [0, 1]
+        );
+        $mform->hideIf('freesize', 'type', 'neq', 'video');
+
+        $elementarray[] = $mform->createElement(
+            'advcheckbox',
+            'dismissable',
+            '',
+            get_string('dismissable', 'local_ivannotation'),
+            ['group' => 1],
+            [0, 1]
+        );
+
         $mform->addGroup($elementarray, '', '');
+        $mform->hideIf('rounded', 'type', 'in', ['audio']);
+        $mform->hideIf('shadow', 'type', 'in', ['audio']);
+        $mform->hideIf('muted', 'type', 'neq', 'video');
+        $mform->hideIf('dismissable', 'type', 'neq', 'video');
 
         $mform->addElement('text', 'alttext', get_string('alttext', 'local_ivannotation'), ['size' => 100]);
         $mform->setType('alttext', PARAM_TEXT);
@@ -250,6 +268,32 @@ class media extends \core_form\dynamic_form {
         ]);
         $mform->addGroup($element, 'timestampgroup', get_string('gototimestamp', 'local_ivannotation'), '', false);
         $mform->hideIf('timestampgroup', 'type', 'neq', 'image');
+
+        $mform->addElement('select', 'size', get_string('size', 'local_ivannotation'), [
+            '20' => '20%',
+            '25' => '25%',
+            '30' => '30%',
+            '50' => '50%',
+            '75' => '75%',
+            '100' => '100%',
+        ]);
+        $mform->setDefault('size', '25');
+        $mform->hideIf('size', 'type', 'neq', 'video');
+
+        $mform->addElement('select', 'vposition', get_string('position', 'local_ivannotation'), [
+            'top-left' => get_string('top-left', 'local_ivannotation'),
+            'top-center' => get_string('top-center', 'local_ivannotation'),
+            'top-right' => get_string('top-right', 'local_ivannotation'),
+            'center-left' => get_string('center-left', 'local_ivannotation'),
+            'center-center' => get_string('center-center', 'local_ivannotation'),
+            'center-right' => get_string('center-right', 'local_ivannotation'),
+            'bottom-left' => get_string('bottom-left', 'local_ivannotation'),
+            'bottom-center' => get_string('bottom-center', 'local_ivannotation'),
+            'bottom-right' => get_string('bottom-right', 'local_ivannotation'),
+        ]);
+        $mform->setDefault('vposition', 'bottom-right');
+        $mform->hideIf('vposition', 'type', 'neq', 'video');
+
         $this->set_display_vertical();
     }
 

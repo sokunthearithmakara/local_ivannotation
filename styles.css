@@ -7,6 +7,10 @@
     text-align: center;
 }
 
+.path-mod-interactivevideo .annotation-content.top-0 {
+    top: 0;
+}
+
 #page-mod-interactivevideo-interactions #annotation-btns {
     position: fixed;
     top: 15px;
@@ -72,7 +76,7 @@
 
 #page-mod-interactivevideo-view #annotation-canvas .annotation-wrapper[data-type="video"]:not(.resizable) {
     display: flex;
-    align-items: center;
+    align-items: start;
     justify-content: center;
 }
 
@@ -127,9 +131,55 @@
 #page-mod-interactivevideo-interactions #annotation-timeline .annotation-timeline-item.active {
     background-color: var(--ivprimary);
     height: 10px;
-    z-index: 1;
+    z-index: 20 !important;
 }
 
 #page-mod-interactivevideo-interactions #annotation-timeline .annotation-timeline-item:hover {
     height: 10px;
+    z-index: 20 !important;
+}
+
+.path-mod-interactivevideo #annotation-canvas .annotation-wrapper[data-type="mute"] {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.path-mod-interactivevideo .annotation-timeline-item[data-type="mute"] {
+    background: var(--ivdanger) !important;
+}
+
+.path-mod-interactivevideo .annotation-timeline-item .annotation-timeline-item-content {
+    position: absolute;
+    bottom: -15px;
+    background: #000;
+    color: #fff;
+    font-size: x-small;
+    padding: 0 3px;
+    left: 0;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.path-mod-interactivevideo #annotation-canvas .annotation-wrapper[data-type="video"] .dismiss-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.5);
+    width: 25px;
+    text-align: center;
+    height: 25px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.path-mod-interactivevideo #annotation-canvas .annotation-wrapper[data-type="video"] .dismiss-btn:hover {
+    background: rgba(255, 255, 255, 0.75);
+}
+
+.path-mod-interactivevideo #annotation-canvas .annotation-wrapper[data-type="audio"] .annotation-content {
+    background: url([[pix:local_ivannotation|volume]]) no-repeat center center;
+    background-size: 70%;
 }

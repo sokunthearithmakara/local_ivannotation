@@ -35,18 +35,7 @@ Example context (json):
                 <button class="px-2 btn btn-sm iv-rounded-0" id="closetoolbar" title="{{#str}}close,mod_interactivevideo{{/str}}"><i
                                 class="bi bi-x-lg fs-25px"></i></button>
         </div>
-        <div id="edit-btns" data-active="5" class="align-items-center d-none">
-                <span class="btn-sm iv-rounded-0 iv-mr-1 small d-none align-items-center" id="position" title="Position">
-                <i class="bi-bounding-box-circles bi iv-mr-1"></i>
-                    x: <span id="x-position" class="iv-mr-2" ></span>
-                    y: <span id="y-position" class="iv-mr-2"></span>
-                    z: <span id="z-position" class="iv-mr-2"></span>
-                    w: <span id="w-position" class="iv-mr-2"></span>
-                    h: <span id="h-position" class="iv-mr-2"></span>
-                <i class="bi-stopwatch bi iv-mr-2 iv-mr-1"></i>
-                <span id="s-position" class="iv-mr-1"></span>
-                -<span id="e-position" class="mx-1"></span>
-                </span>
+        <div id="edit-btns" data-active="5" class="align-items-center d-none flex-grow-1 mx-3">
                 <button class="btn btn-sm iv-rounded-0" disabled="disabled" id="group" title="{{#str}}group,local_ivannotation{{/str}}"><i
                 class="bi bi-union"></i></button>
                 <button class="btn btn-sm iv-rounded-0" disabled="disabled" id="ungroup" title="{{#str}}ungroup,local_ivannotation{{/str}}"><i
@@ -63,6 +52,18 @@ Example context (json):
 
                 <button class="btn btn-sm iv-rounded-0 text-danger" id="delete"
                         title="{{#str}}delete,mod_interactivevideo{{/str}}"><i class="bi bi-trash3"></i></button>
+                <span class="btn-sm iv-rounded-0 iv-mr-3 iv-ml-auto small d-none align-items-center iv-text-left d-lg-block" id="position" title="Position">
+                <i class="bi-bounding-box-circles bi iv-mr-1"></i>
+                    x: <span id="x-position" class="iv-mr-2" ></span>
+                    y: <span id="y-position" class="iv-mr-2"></span>
+                    z: <span id="z-position" class="iv-mr-2"></span>
+                    w: <span id="w-position" class="iv-mr-2"></span>
+                    h: <span id="h-position" class="iv-mr-2"></span>
+                    <br>
+                <i class="bi-stopwatch bi iv-mr-2 iv-mr-1"></i>
+                <span id="s-position" class="iv-mr-1"></span>
+                -<span id="e-position" class="mx-1"></span>
+                </span>
         </div>
         <div class="d-flex align-items-center">
                 {{#items}}

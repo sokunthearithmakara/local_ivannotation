@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace local_ivannotation\external;
+
 use external_function_parameters;
 use external_single_structure;
 use external_api;
@@ -57,12 +58,28 @@ class add extends external_api {
         ]);
 
         require_login();
-        $record = json_decode($annotationdata, true);
-        $record['timecreated'] = time();
-        $record['timemodified'] = time();
-        $id = $DB->insert_record('interactivevideo_items', (object)$record);
-        $data = $DB->get_record('interactivevideo_items', ['id' => $id]);
-        $data->formattedtitle = get_string('pluginname', 'local_ivannotation');
+
+        $data = json_decode($annotationdata, true);
+        $courseid = $data['courseid'];
+        $defaults = $DB->get_record(
+            'interactivevideo_defaults',
+            ['courseid' => $courseid, 'type' => 'annotation'],
+            '*',
+            IGNORE_MISSING
+        );
+        if ($defaults) {
+            foreach ($defaults as $key => $value) {
+                $data[$key] = $value;
+            }
+        }
+        $data['courseid'] = $courseid;
+        $data['timestamp'] = -1; // Default timestamp for analytics.
+        $data['type'] = 'annotation';
+        $data['content'] = ''; // Default content for annotation.
+        $data['timecreated'] = time();
+        $data['timemodified'] = time();
+        $data['id'] = $DB->insert_record('interactivevideo_items', (object)$data);
+        $data['formattedtitle'] = get_string('pluginname', 'local_ivannotation');
         return [
             'data' => json_encode($data),
         ];
