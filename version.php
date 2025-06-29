@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component    = 'local_ivannotation';
-$plugin->release      = '1.2';
+$plugin->release      = '1.3';
 $plugin->version      = 2025062801;
 $plugin->requires     = 2021112800;
 $plugin->supported    = [400, 500];
