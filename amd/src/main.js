@@ -96,11 +96,14 @@ export default class Annotation extends Base {
             updateAspectRatio(true);
 
             let vwrapper = document.querySelector('#video-wrapper');
+            let resizeTimeout;
             let resizeObserver = new ResizeObserver(() => {
-                updateAspectRatio();
-                updateAspectRatio(true);
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    updateAspectRatio();
+                    updateAspectRatio(true);
+                }, 100);
             });
-
             resizeObserver.observe(vwrapper);
 
             $(document).on('timeupdate', function() {
@@ -127,7 +130,7 @@ export default class Annotation extends Base {
         annos = annos.map(function() {
             return {
                 self: $(this),
-                id: $(this).data('id'),
+                id: $(this).data('item'),
                 start: Number($(this).data('start')),
                 end: Number($(this).data('end')),
                 type: $(this).data('type'),
@@ -146,7 +149,7 @@ export default class Annotation extends Base {
                 }
                 return {
                     self: $(this),
-                    id: $(this).data('id'),
+                    id: $(this).data('item'),
                     start: Number($(this).data('start')),
                     end: Number($(this).data('end')),
                     type: $(this).data('type'),
@@ -155,6 +158,34 @@ export default class Annotation extends Base {
                 };
             }).get();
 
+            self.dispatchEvent('timeupdate', {time: await self.player.getCurrentTime()});
+        });
+
+        $(document).on('iv:playerReload.Annotation', async function(e) {
+            if (e.originalEvent.detail.main) { // If this is the main video.
+                annos = $('#annotation-canvas .annotation-wrapper');
+                annos = annos.map(function() {
+                    let video = $(this).find('video, audio')[0];
+                    if (video) {
+                        video.pause();
+                    }
+                    return {
+                        self: $(this),
+                        id: $(this).data('item'),
+                        start: Number($(this).data('start')),
+                        end: Number($(this).data('end')),
+                        type: $(this).data('type'),
+                        duration: Number($(this).data('duration')) || 0,
+                        video: video,
+                    };
+                }).get();
+            } else {
+                annos = annos.map(x => {
+                    x.start = self.start;
+                    x.end = self.start;
+                    return x;
+                });
+            }
             self.dispatchEvent('timeupdate', {time: await self.player.getCurrentTime()});
         });
 
@@ -204,7 +235,6 @@ export default class Annotation extends Base {
                 return x.id;
             });
 
-
             annos.forEach(async function(anno) {
                 if (anno.type == 'mute') { // If mute exists.
                     hasMute = true;
@@ -232,7 +262,7 @@ export default class Annotation extends Base {
         });
 
         // Handle speed change.
-        $(document).off('iv:playerRateChange.AudioTrack').on('iv:playerRateChange.AudioTrack', function(e) {
+        $(document).off('iv:playerRateChange.Annotations').on('iv:playerRateChange.Annotations', function(e) {
             let rate = e.detail.rate;
             let videos = annos.filter(x => x.video);
             videos.forEach(x => {
@@ -241,7 +271,7 @@ export default class Annotation extends Base {
         });
 
         // Event listener to pause all the videos when the player is paused or ended.
-        $(document).on('videoPaused iv:playerPaused iv:playerEnded', function() {
+        $(document).on('videoPaused.Annotations iv:playerPaused.Annotations iv:playerEnded.Annotations', function() {
             let videos = annos.filter(x => x.video);
             videos.forEach(x => x.video.pause());
         });
@@ -387,13 +417,14 @@ export default class Annotation extends Base {
             let z = elem.css('z-index');
             let s = elem.data('start');
             let e = elem.data('end');
-            $(`#annotation-btns #position #x-position`).text(Math.round(l));
-            $(`#annotation-btns #position #y-position`).text(Math.round(t));
-            $(`#annotation-btns #position #z-position`).text(z - 5);
-            $(`#annotation-btns #position #w-position`).text(Math.round(w));
-            $(`#annotation-btns #position #h-position`).text(Math.round(hw));
-            $(`#annotation-btns #position #s-position`).text(convertSecondsToMMSS(s));
-            $(`#annotation-btns #position #e-position`).text(convertSecondsToMMSS(e));
+            let $position = $('#annotation-btns #position');
+            $position.find('#x-position').text(Math.round(l));
+            $position.find('#y-position').text(Math.round(t));
+            $position.find('#z-position').text(z - 5);
+            $position.find('#w-position').text(Math.round(w));
+            $position.find('#h-position').text(Math.round(hw));
+            $position.find('#s-position').text(convertSecondsToMMSS(s));
+            $position.find('#e-position').text(convertSecondsToMMSS(e));
         };
 
         /**
@@ -472,22 +503,24 @@ export default class Annotation extends Base {
             timeline.empty();
             elements.sort((a, b) => b.position['z-index'] - a.position['z-index']);
             let count = 0;
+            let timelineHTML = '';
             elements.forEach((item, i) => {
                 let prop = item.properties;
                 let type = item.type;
                 let id = parseInt(item.id);
                 let left = (prop.start - self.start) / (self.end - self.start) * 100;
                 let width = (prop.end - prop.start) / (self.end - self.start) * 100;
-                timeline.append(`<div class="annotation-timeline-item position-absolute ${activeids.includes(id) ? 'active' : ''}"
+                timelineHTML += `<div class="annotation-timeline-item position-absolute ${activeids.includes(id) ? 'active' : ''}"
                      data-item="${id}" data-type="${type}" data-end="${prop.end}" data-start="${prop.start}"
                      data-duration="${prop.duration}"
                          style="z-index: 5; left: ${left}%; top: ${(i + 1) * 10}px; width: ${width}%">
                          <div class="annotation-timeline-item-content">
                             ${M.util.get_string(type, 'local_ivannotation')}
                             </div>
-                         </div>`);
+                         </div>`;
                 count++;
                 if (count == elements.length) {
+                    timeline.append(timelineHTML);
                     // Initialize the draggable and resizable for each item on the timeline.
                     $('.annotation-timeline-item').draggable({
                         'axis': 'x',
@@ -1490,28 +1523,30 @@ export default class Annotation extends Base {
 
         // Check resize on video wrapper resize
         let vwrapper = document.querySelector('#video-wrapper');
+        let resizeTimeout;
         let resizeObserver = new ResizeObserver(() => {
-            let existingwrapper = $(`#annotation-canvas`).find(`.annotation-wrapper`);
-            if (existingwrapper.length == 0) {
-                return;
-            }
-            existingwrapper.each(function() {
-                let wrapper = $(this);
-                let type = $(this).data('type');
-                setTimeout(() => {
-                    if (type == 'file' || type == 'navigation' || type == 'textblock' || type == 'mute') {
-                        recalculatingTextSize($(this), type != 'textblock', type == 'textblock');
-                    } else if (type == 'video') {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                let existingwrapper = $(`#annotation-canvas`).find(`.annotation-wrapper`);
+                if (existingwrapper.length === 0) {
+                    return;
+                }
+                existingwrapper.each(function() {
+                    let wrapper = $(this);
+                    let type = wrapper.data('type');
+                    if (type === 'file' || type === 'navigation' || type === 'textblock' || type === 'mute') {
+                        recalculatingTextSize(wrapper, type !== 'textblock', type === 'textblock');
+                    } else if (type === 'video') {
                         recalculatingSize(wrapper);
-                        let aspectRatio =
-                            wrapper.find('.annotation-content').width() / wrapper.find('.annotation-content').height();
-                        if (wrapper.width() / wrapper.height() != aspectRatio) {
-                            $(this).height((wrapper.width() / aspectRatio));
+                        let $annotationContent = wrapper.find('.annotation-content');
+                        let aspectRatio = $annotationContent.width() / $annotationContent.height();
+                        if (wrapper.width() / wrapper.height() !== aspectRatio) {
+                            wrapper.height(wrapper.width() / aspectRatio);
                         }
                     }
-                }, 100);
-            });
-            $('#annotation-canvas').css('font-size', $('#annotation-canvas').width() / 75 + 'px');
+                });
+                $('#annotation-canvas').css('font-size', $('#annotation-canvas').width() / 75 + 'px');
+            }, 100);
         });
         resizeObserver.observe(vwrapper);
 
@@ -2094,7 +2129,6 @@ export default class Annotation extends Base {
                     $('#annotation-btns #ungroup, #annotation-btns #group').removeAttr('disabled').removeClass('d-none');
                 }
             }
-
         });
 
         $videoWrapper.off('dblclick', '.annotation-wrapper').on('dblclick', '.annotation-wrapper', function(e) {
