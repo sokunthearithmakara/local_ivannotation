@@ -25,8 +25,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component    = 'local_ivannotation';
-$plugin->release      = '1.3.1';
-$plugin->version      = 2025071201;
+$plugin->release      = '1.4';
+$plugin->version      = 2026011600;
 $plugin->requires     = 2021112800;
 $plugin->supported    = [400, 501];
 $plugin->maturity     = MATURITY_STABLE;
@@ -34,4 +34,3 @@ $plugin->dependencies = [
     'interactivevideo' => 2025011305,
     'ivplugin_richtext' => 2024071500,
 ];
-
