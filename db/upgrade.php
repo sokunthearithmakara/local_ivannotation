@@ -38,6 +38,7 @@ function xmldb_local_ivannotation_upgrade($oldversion) {
                 SET content = REPLACE(content, '\"timestamp\":\"00:00:00\"', '\"timestamp\":\"\"')
                 WHERE type = 'annotation'";
         $DB->execute($sql);
+        upgrade_plugin_savepoint(true, 2025021300, 'local', 'ivannotation');
     }
     return true;
 }
