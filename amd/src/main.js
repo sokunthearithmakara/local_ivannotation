@@ -130,11 +130,11 @@ export default class Annotation extends Base {
         annos = annos.map(function() {
             return {
                 self: $(this),
-                id: $(this).data('item'),
-                start: Number($(this).data('start')),
-                end: Number($(this).data('end')),
-                type: $(this).data('type'),
-                duration: Number($(this).data('duration')) || 0,
+                id: $(this).attr('data-item'),
+                start: Number($(this).attr('data-start')),
+                end: Number($(this).attr('data-end')),
+                type: $(this).attr('data-type'),
+                duration: Number($(this).attr('data-duration')) || 0,
                 video: $(this).find('video, audio')[0],
             };
         }).get();
@@ -149,11 +149,11 @@ export default class Annotation extends Base {
                 }
                 return {
                     self: $(this),
-                    id: $(this).data('item'),
-                    start: Number($(this).data('start')),
-                    end: Number($(this).data('end')),
-                    type: $(this).data('type'),
-                    duration: Number($(this).data('duration')) || 0,
+                    id: $(this).attr('data-item'),
+                    start: Number($(this).attr('data-start')),
+                    end: Number($(this).attr('data-end')),
+                    type: $(this).attr('data-type'),
+                    duration: Number($(this).attr('data-duration')) || 0,
                     video: video,
                 };
             }).get();
@@ -171,11 +171,11 @@ export default class Annotation extends Base {
                     }
                     return {
                         self: $(this),
-                        id: $(this).data('item'),
-                        start: Number($(this).data('start')),
-                        end: Number($(this).data('end')),
-                        type: $(this).data('type'),
-                        duration: Number($(this).data('duration')) || 0,
+                        id: $(this).attr('data-item'),
+                        start: Number($(this).attr('data-start')),
+                        end: Number($(this).attr('data-end')),
+                        type: $(this).attr('data-type'),
+                        duration: Number($(this).attr('data-duration')) || 0,
                         video: video,
                     };
                 }).get();
@@ -288,6 +288,10 @@ export default class Annotation extends Base {
             videos.forEach(x => {
                 x.video.currentTime = currentTime - x.start;
             });
+
+            if (self.isEditMode()) {
+                return;
+            }
 
             let links = annos.filter(x => x.type == 'link' && x.start <= currentTime && x.end >= currentTime);
             links.forEach(x => {
@@ -435,8 +439,8 @@ export default class Annotation extends Base {
             let t = elem.position().top < 0 ? 0 : elem.position().top;
             let l = elem.position().left < 0 ? 0 : elem.position().left;
             let z = elem.css('z-index');
-            let s = elem.data('start');
-            let e = elem.data('end');
+            let s = elem.attr('data-start');
+            let e = elem.attr('data-end');
             let $position = $('#annotation-btns #position');
             $position.find('#x-position').text(Math.round(l));
             $position.find('#y-position').text(Math.round(t));
@@ -461,7 +465,7 @@ export default class Annotation extends Base {
             let l = elem.position().left / message.width() * 100;
             l = l < 0 ? 0 : l;
             let z = elem.css('z-index');
-            let g = elem.data('group');
+            let g = elem.attr('data-group');
             let position = {
                 'width': w + '%',
                 'height': h + '%',
@@ -555,21 +559,21 @@ export default class Annotation extends Base {
                             let $selected = $('.annotation-timeline-item.active');
                             $selected.addClass('no-pointer-events');
                             $selected.each(function() {
-                                $(this).data('startPosition', $(this).position());
+                                $(this).attr('data-startPosition', $(this).position());
                             });
-                            timestampScrollbar($(this).data('start'));
+                            timestampScrollbar($(this).attr('data-start'));
                             $('#timeline-items').addClass('no-pointer-events');
                         },
                         'drag': async function(e, ui) {
                             let timestamp = (ui.position.left) / $('#annotation-timeline').width() * self.totaltime
                                 + self.start;
-                            let duration = $(this).data('end') - $(this).data('start');
+                            let duration = $(this).attr('data-end') - $(this).attr('data-start');
                             $('#s-position').text(convertSecondsToMMSS(timestamp));
                             $('#e-position').text(convertSecondsToMMSS(timestamp + duration));
 
                             // Hide or show these element
                             let now = await self.player.getCurrentTime();
-                            let $annowrapper = $videoWrapper.find(`.annotation-wrapper[data-item="${$(this).data('item')}"]`);
+                            let $annowrapper = $videoWrapper.find(`.annotation-wrapper[data-item="${$(this).attr('data-item')}"]`);
                             if (timestamp <= now && timestamp + duration >= now) {
                                 $annowrapper.css('visibility', 'visible');
                             } else {
@@ -584,14 +588,15 @@ export default class Annotation extends Base {
                             const distance = ui.originalPosition.left - ui.position.left;
                             $selected.not(this).each(function() {
                                 let $this = $(this);
-                                const position = $this.data('startPosition');
+                                const position = $this.attr('data-startPosition');
                                 $this.css({
                                     left: ((position.left - distance) / $('#annotation-timeline').width()) * 100 + '%',
                                 });
                                 let timestamp = ($this.position().left / $('#annotation-timeline').width()) * self.totaltime
                                     + self.start;
-                                let duration = $this.data('end') - $this.data('start');
-                                let $annowrapper = $videoWrapper.find(`.annotation-wrapper[data-item="${$this.data('item')}"]`);
+                                let duration = $this.attr('data-end') - $this.attr('data-start');
+                                let $annowrapper = $videoWrapper
+                                    .find(`.annotation-wrapper[data-item="${$this.attr('data-item')}"]`);
                                 if (timestamp <= now && timestamp + duration >= now) {
                                     $annowrapper.css('visibility', 'visible');
                                 } else {
@@ -608,7 +613,7 @@ export default class Annotation extends Base {
                             let $selected = $('.annotation-timeline-item.active');
                             $selected.each(function() {
                                 let $this = $(this);
-                                let elementid = $this.data('item');
+                                let elementid = $this.attr('data-item');
                                 let itemIndex = items.findIndex(x => x.id == elementid);
                                 let item = items[itemIndex];
                                 let elem = $videoWrapper.find(`.annotation-wrapper[data-item="${elementid}"]`);
@@ -626,7 +631,7 @@ export default class Annotation extends Base {
                                 items[itemIndex] = item;
                             });
                             $selected = $selected.map(function() {
-                                return $(this).data('item');
+                                return $(this).attr('data-item');
                             }).get();
                             saveTracking($selected);
                             renderItems(items, $selected, false);
@@ -645,10 +650,10 @@ export default class Annotation extends Base {
                             let $selected = $('.annotation-timeline-item.active');
                             $selected.addClass('no-pointer-events');
                             $selected.each(function() {
-                                $(this).data('originalStart', $(this).data('start'));
-                                $(this).data('originalEnd', $(this).data('end'));
+                                $(this).attr('data-originalStart', $(this).attr('data-start'));
+                                $(this).attr('data-originalEnd', $(this).attr('data-end'));
                             });
-                            timestampScrollbar($(this).data('start'));
+                            timestampScrollbar($(this).attr('data-start'));
                             $('#timeline-items').addClass('no-pointer-events');
                         },
                         'resize': async function(e, ui) {
@@ -678,7 +683,7 @@ export default class Annotation extends Base {
 
                             // Hide or show this element
                             let now = await self.player.getCurrentTime();
-                            let $annowrapper = $videoWrapper.find(`.annotation-wrapper[data-item="${$(this).data('item')}"]`);
+                            let $annowrapper = $videoWrapper.find(`.annotation-wrapper[data-item="${$(this).attr('data-item')}"]`);
                             if (newStart <= now && newEnd >= now) {
                                 $annowrapper.css('visibility', 'visible');
                             } else {
@@ -698,7 +703,8 @@ export default class Annotation extends Base {
 
                                 $this.attr('data-start', newStart);
                                 $this.attr('data-end', newEnd);
-                                let $annowrapper = $videoWrapper.find(`.annotation-wrapper[data-item="${$this.data('item')}"]`);
+                                let $annowrapper = $videoWrapper
+                                    .find(`.annotation-wrapper[data-item="${$this.attr('data-item')}"]`);
                                 if (newStart <= now && newEnd >= now) {
                                     $annowrapper.css('visibility', 'visible');
                                 } else {
@@ -718,7 +724,7 @@ export default class Annotation extends Base {
                             let $selected = $('.annotation-timeline-item.active');
                             $selected.each(function() {
                                 let $this = $(this);
-                                let elementid = $this.data('item');
+                                let elementid = $this.attr('data-item');
                                 let itemIndex = items.findIndex(x => x.id == elementid);
                                 let item = items[itemIndex];
                                 let elem = $videoWrapper.find(`.annotation-wrapper[data-item="${elementid}"]`);
@@ -739,7 +745,7 @@ export default class Annotation extends Base {
                                 items[itemIndex] = item;
                             });
                             $selected = $selected.map(function() {
-                                return $(this).data('item');
+                                return $(this).attr('data-item');
                             }).get();
                             saveTracking($selected);
                             renderItems(items, $selected, false);
@@ -1286,7 +1292,7 @@ export default class Annotation extends Base {
                                     let $selected = $videoWrapper.find('.annotation-wrapper.active');
                                     $selected.addClass('no-pointer');
                                     $selected.each(function() {
-                                        $(this).data('startPosition', $(this).position());
+                                        $(this).attr('data-startPosition', $(this).position());
                                     });
                                 },
                                 drag: function(event, ui) {
@@ -1295,7 +1301,7 @@ export default class Annotation extends Base {
                                     let top = ui.originalPosition.top - ui.position.top;
                                     let positions = $selected.map(function() {
                                         return {
-                                            id: $(this).data('item'),
+                                            id: $(this).attr('data-item'),
                                             left: $(this).position().left,
                                             top: $(this).position().top,
                                             bottom: $(this).position().top + $(this).height(),
@@ -1310,7 +1316,7 @@ export default class Annotation extends Base {
                                         let id = onLeft.id;
                                         let target = $videoWrapper.find(`.annotation-wrapper[data-item="${id}"]`);
                                         target.css('left', 0);
-                                        let distance = target.data('startPosition').left;
+                                        let distance = target.attr('data-startPosition').left;
                                         ui.position.left = ui.originalPosition.left - distance;
                                         left = ui.originalPosition.left - ui.position.left;
                                     }
@@ -1321,7 +1327,7 @@ export default class Annotation extends Base {
                                         let id = onTop.id;
                                         let target = $videoWrapper.find(`.annotation-wrapper[data-item="${id}"]`);
                                         target.css('top', 0);
-                                        let distance = target.data('startPosition').top;
+                                        let distance = target.attr('data-startPosition').top;
                                         ui.position.top = ui.originalPosition.top - distance;
                                         top = ui.originalPosition.top - ui.position.top;
                                     }
@@ -1332,7 +1338,7 @@ export default class Annotation extends Base {
                                         let id = onRight.id;
                                         let target = $videoWrapper.find(`.annotation-wrapper[data-item="${id}"]`);
                                         target.css('left', ($('#annotation-canvas').width() - target.width() - 1) + 'px');
-                                        let distance = target.data('startPosition').left - target.position().left;
+                                        let distance = target.attr('data-startPosition').left - target.position().left;
                                         ui.position.left = ui.originalPosition.left - distance;
                                         left = ui.originalPosition.left - ui.position.left;
                                     }
@@ -1343,14 +1349,14 @@ export default class Annotation extends Base {
                                         let id = onBottom.id;
                                         let target = $videoWrapper.find(`.annotation-wrapper[data-item="${id}"]`);
                                         target.css('top', ($('#annotation-canvas').height() - target.height() - 1) + 'px');
-                                        let distance = target.data('startPosition').top - target.position().top;
+                                        let distance = target.attr('data-startPosition').top - target.position().top;
                                         ui.position.top = ui.originalPosition.top - distance;
                                         top = ui.originalPosition.top - ui.position.top;
                                     }
 
                                     $selected.not(this).each(function() {
                                         let $this = $(this);
-                                        let position = $this.data('startPosition');
+                                        let position = $this.attr('data-startPosition');
                                         $this.css({
                                             left: (position.left - left) + 'px',
                                             top: (position.top - top) + 'px',
@@ -1362,7 +1368,7 @@ export default class Annotation extends Base {
                                     let $selected = $videoWrapper.find('.annotation-wrapper.active');
                                     let positions = $selected.map(function() {
                                         return {
-                                            id: $(this).data('item'),
+                                            id: $(this).attr('data-item'),
                                             left: $(this).position().left,
                                             top: $(this).position().top,
                                             bottom: $(this).position().top + $(this).height(),
@@ -1376,10 +1382,10 @@ export default class Annotation extends Base {
                                         let id = onLeft.id;
                                         let target = $videoWrapper.find(`.annotation-wrapper[data-item="${id}"]`);
                                         target.css('left', 0);
-                                        let distance = target.data('startPosition').left;
+                                        let distance = target.attr('data-startPosition').left;
                                         $selected.each(function() {
                                             let $this = $(this);
-                                            let position = $this.data('startPosition');
+                                            let position = $this.attr('data-startPosition');
                                             let newLeft = position.left - distance;
                                             $this.css('left', newLeft + 'px');
                                         });
@@ -1391,10 +1397,10 @@ export default class Annotation extends Base {
                                         let id = onTop.id;
                                         let target = $videoWrapper.find(`.annotation-wrapper[data-item="${id}"]`);
                                         target.css('top', 0);
-                                        let distance = target.data('startPosition').top;
+                                        let distance = target.attr('data-startPosition').top;
                                         $selected.each(function() {
                                             let $this = $(this);
-                                            let position = $this.data('startPosition');
+                                            let position = $this.attr('data-startPosition');
                                             let newTop = position.top - distance;
                                             $this.css('top', newTop + 'px');
                                         });
@@ -1406,10 +1412,10 @@ export default class Annotation extends Base {
                                         let id = onRight.id;
                                         let target = $videoWrapper.find(`.annotation-wrapper[data-item="${id}"]`);
                                         target.css('left', ($('#annotation-canvas').width() - target.width() - 1) + 'px');
-                                        let distance = target.data('startPosition').left - target.position().left;
+                                        let distance = target.attr('data-startPosition').left - target.position().left;
                                         $selected.each(function() {
                                             let $this = $(this);
-                                            let position = $this.data('startPosition');
+                                            let position = $this.attr('data-startPosition');
                                             let newLeft = position.left - distance;
                                             $this.css('left', newLeft + 'px');
                                         });
@@ -1421,10 +1427,10 @@ export default class Annotation extends Base {
                                         let id = onBottom.id;
                                         let target = $videoWrapper.find(`.annotation-wrapper[data-item="${id}"]`);
                                         target.css('top', ($('#annotation-canvas').height() - target.height() - 1) + 'px');
-                                        let distance = target.data('startPosition').top - target.position().top;
+                                        let distance = target.attr('data-startPosition').top - target.position().top;
                                         $selected.each(function() {
                                             let $this = $(this);
-                                            let position = $this.data('startPosition');
+                                            let position = $this.attr('data-startPosition');
                                             let newTop = position.top - distance;
                                             $this.css('top', newTop + 'px');
                                         });
@@ -1432,7 +1438,7 @@ export default class Annotation extends Base {
 
                                     getItems(false);
                                     $selected = $selected.map(function() {
-                                        return $(this).data('item');
+                                        return $(this).attr('data-item');
                                     }).get();
                                     saveTracking($selected);
                                     if ($selected.length == 1) {
@@ -1449,7 +1455,7 @@ export default class Annotation extends Base {
                                 minHeight: 1,
                                 minWidth: 1,
                                 resize: function(event) {
-                                    let type = $(this).data('type');
+                                    let type = $(this).attr('data-type');
                                     if (type == 'file' || type == 'navigation' || type == 'textblock'
                                         || type == 'mute') {
                                         recalculatingTextSize($(this), type != 'textblock', type == 'textblock');
@@ -1459,7 +1465,7 @@ export default class Annotation extends Base {
                                     updatePositionInfo($(this));
                                 },
                                 stop: function() {
-                                    let type = $(this).data('type');
+                                    let type = $(this).attr('data-type');
                                     if (type == 'file' || type == 'navigation' || type == 'textblock'
                                         || type == 'mute') {
                                         recalculatingTextSize($(this), type != 'textblock', type == 'textblock');
@@ -1468,7 +1474,7 @@ export default class Annotation extends Base {
                                     }
                                     recalculatingSize($(this));
                                     getItems(false);
-                                    saveTracking([$(this).data('item')]);
+                                    saveTracking([$(this).attr('data-item')]);
                                     $(this).trigger('click');
                                 }
                             });
@@ -1495,15 +1501,15 @@ export default class Annotation extends Base {
                     $videoWrapper.off('click', `.annotation-wrapper`).on('click', `.annotation-wrapper`, async function(e) {
                         e.stopImmediatePropagation();
                         let wrapper = $(this);
-                        let type = wrapper.data('type');
+                        let type = wrapper.attr('data-type');
                         switch (type) {
                             case 'navigation':
                             case 'image':
                             case 'hotspot':
                                 await self.player.pause();
-                                var hotspotid = wrapper.data('item');
+                                var hotspotid = wrapper.attr('data-item');
                                 var hotspot = items.find(x => x.id == hotspotid);
-                                var viewertype = wrapper.data('toggle') || wrapper.data('bs-toggle');
+                                var viewertype = wrapper.attr('data-toggle') || wrapper.attr('data-bs-toggle');
                                 if (viewertype == 'modal') {
                                     let title = hotspot.properties.formattedtitle;
                                     let content = hotspot.properties.content.text;
@@ -1548,8 +1554,8 @@ export default class Annotation extends Base {
                                 break;
                         }
 
-                        if ($(this).data('timestamp') != undefined) {
-                            let timestamp = $(this).data('timestamp');
+                        if ($(this).attr('data-timestamp') != undefined) {
+                            let timestamp = $(this).attr('data-timestamp');
                             self.player.seek(timestamp);
                             self.player.play();
                         }
@@ -1575,7 +1581,7 @@ export default class Annotation extends Base {
                 }
                 existingwrapper.each(function() {
                     let wrapper = $(this);
-                    let type = wrapper.data('type');
+                    let type = wrapper.attr('data-type');
                     if (type === 'file' || type === 'navigation' || type === 'textblock' || type === 'mute') {
                         recalculatingTextSize(wrapper, type !== 'textblock', type === 'textblock');
                     } else if (type === 'video') {
@@ -1697,9 +1703,9 @@ export default class Annotation extends Base {
             let newItems = [];
             const annos = $videoWrapper.find(`.annotation-wrapper`);
             annos.each(function(index, element) {
-                const id = $(element).data('item');
+                const id = $(element).attr('data-item');
                 let item = {
-                    "type": $(element).data('type'),
+                    "type": $(element).attr('data-type'),
                     "position": recalculatingSize($(element)),
                 };
                 item.id = id;
@@ -1849,7 +1855,7 @@ export default class Annotation extends Base {
             e.stopImmediatePropagation();
             $videoWrapper.find('.annotation-wrapper').removeClass('active');
             if (!e.ctrlKey && !e.metaKey) {
-                let elementid = $(this).data('item');
+                let elementid = $(this).attr('data-item');
                 let elem = $videoWrapper.find(`.annotation-wrapper[data-item="${elementid}"]`);
                 elem.trigger('click');
             } else {
@@ -1868,7 +1874,7 @@ export default class Annotation extends Base {
                 $('#annotation-btns #edit').removeAttr('disabled');
             } else {
                 let dataActive = activeitems.map(function() {
-                    return $(this).data('item');
+                    return $(this).attr('data-item');
                 }).get();
 
                 dataActive.forEach((id) => {
@@ -1894,12 +1900,12 @@ export default class Annotation extends Base {
             e.preventDefault();
             e.stopImmediatePropagation();
             let currentTime = await self.player.getCurrentTime(); // We have to check if the time is different.
-            let start = $(this).data('start');
+            let start = $(this).attr('data-start');
             if (currentTime == start) {
                 return;
             }
-            self.player.seek($(this).data('start'));
-            self.dispatchEvent('timeupdate', {time: $(this).data('start')});
+            self.player.seek($(this).attr('data-start'));
+            self.dispatchEvent('timeupdate', {time: $(this).attr('data-start')});
         });
 
         $playerWrapper.off('click', `#annotation-btns #save`).on('click', `#annotation-btns #save`, async function(e) {
@@ -1907,7 +1913,7 @@ export default class Annotation extends Base {
             getItems(false);
             // Encode html tags
             let cleanItems = JSON.stringify(items).replace(/</g, '&lt;').replace(/>/g, '&gt;');
-            let updateId = $videoWrapper.data('id');
+            let updateId = $videoWrapper.attr('data-id');
             await $.ajax({
                 url: M.cfg.wwwroot + '/mod/interactivevideo/ajax.php',
                 method: "POST",
@@ -1977,7 +1983,7 @@ export default class Annotation extends Base {
         $playerWrapper.off('click', `#annotation-btns .add-ia`).on('click', `#annotation-btns .add-ia`, async function(e) {
             e.preventDefault();
             e.stopImmediatePropagation();
-            let annoid = $videoWrapper.data('id');
+            let annoid = $videoWrapper.attr('data-id');
             let type = $(this).attr('data-mediatype');
             let start = await self.player.getCurrentTime();
             let end = start + 5;
@@ -2055,7 +2061,7 @@ export default class Annotation extends Base {
         $playerWrapper.off('click', `#annotation-btns #edit`).on('click', `#annotation-btns #edit`, function(e) {
             e.preventDefault();
             e.stopImmediatePropagation();
-            let annnoid = $videoWrapper.data('id');
+            let annnoid = $videoWrapper.attr('data-id');
             let active = $('#edit-btns').attr('data-active');
             getItems(false);
             let item = items.find(x => x.id == active);
@@ -2113,8 +2119,8 @@ export default class Annotation extends Base {
                 }
             }
 
-            if (!isNaN($(this).data('group'))) {
-                let group = $(this).data('group');
+            if (!isNaN($(this).attr('data-group'))) {
+                let group = $(this).attr('data-group');
                 $videoWrapper.find(`.annotation-wrapper[data-group="${group}"]`).addClass('active');
             }
 
@@ -2129,7 +2135,7 @@ export default class Annotation extends Base {
                 $('#annotation-btns #edit').removeAttr('disabled');
             } else {
                 let dataActive = activewrapper.map(function() {
-                    return $(this).data('item');
+                    return $(this).attr('data-item');
                 }).get();
 
                 dataActive.forEach((id) => {
@@ -2149,10 +2155,10 @@ export default class Annotation extends Base {
 
             // Enable ungroup button if the active items are grouped.
             let grouping = activewrapper.map(function() {
-                if (isNaN($(this).data('group')) || $(this).data('group') == '') {
+                if (isNaN($(this).attr('data-group')) || $(this).attr('data-group') == '') {
                     return '';
                 }
-                return $(this).data('group');
+                return $(this).attr('data-group');
             }).get();
 
             grouping = [...new Set(grouping)];
@@ -2278,7 +2284,7 @@ export default class Annotation extends Base {
             $('#annotation-btns #ungroup').removeAttr('disabled').removeClass('d-none');
             getItems(false);
             let active = $('.annotation-wrapper.active').map(function() {
-                return $(this).data('item');
+                return $(this).attr('data-item');
             }).get();
             const group = new Date().getTime();
             active.forEach((item) => {
@@ -2300,7 +2306,7 @@ export default class Annotation extends Base {
             $(`#annotation-btns #group`).removeAttr('disabled').removeClass('d-none');
             getItems(false);
             let active = $('.annotation-wrapper.active').map(function() {
-                return $(this).data('item');
+                return $(this).attr('data-item');
             }).get();
             active.forEach((item) => {
                 let activeItem = $(`.annotation-wrapper[data-item="${item}"]`);
@@ -2495,7 +2501,7 @@ export default class Annotation extends Base {
         // Listen to the annotationupdated event
         $(document).on('annotationdeleted', function(e) {
             let deleted = e.originalEvent.detail.annotation;
-            let annoid = $videoWrapper.data('id');
+            let annoid = $videoWrapper.attr('data-id');
             if (annoid == deleted.id) {
                 $videoWrapper.find('.annotation-wrapper').remove();
                 $(`#annotation-btns`).remove();
