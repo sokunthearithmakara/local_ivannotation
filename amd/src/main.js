@@ -221,6 +221,9 @@ export default class Annotation extends Base {
                         }
                     }
                 }
+                if (x.type == 'link' && !self.isEditMode()) {
+                    x.self.find('a').addClass('show');
+                }
                 return x.id;
             });
 
@@ -231,6 +234,9 @@ export default class Annotation extends Base {
                     if (video) {
                         video.pause();
                     }
+                }
+                if (x.type == 'link' && !self.isEditMode()) {
+                    x.self.find('a').removeClass('show');
                 }
                 return x.id;
             });
@@ -281,6 +287,14 @@ export default class Annotation extends Base {
             let videos = annos.filter(x => x.video && x.start <= currentTime && x.end >= currentTime);
             videos.forEach(x => {
                 x.video.currentTime = currentTime - x.start;
+            });
+
+            let links = annos.filter(x => x.type == 'link' && x.start <= currentTime && x.end >= currentTime);
+            links.forEach(x => {
+                x.self.find('a').removeClass('show');
+                setTimeout(function() {
+                    x.self.find('a').addClass('show');
+                }, 500);
             });
         });
     }
@@ -346,6 +360,12 @@ export default class Annotation extends Base {
                 'type': 'hotspot',
                 'mediatype': 'hotspot',
                 'label': M.util.get_string('hotspot', 'local_ivannotation'),
+            },
+            {
+                'icon': 'bi bi-link-45deg',
+                'type': 'link',
+                'mediatype': 'link',
+                'label': M.util.get_string('externallink', 'local_ivannotation'),
             },
 
         ];
@@ -1070,6 +1090,21 @@ export default class Annotation extends Base {
             }
         };
 
+        const renderLink = (wrapper, item, prop, id, position) => {
+            wrapper.append(`<a href="${prop.url}" target="_blank" class="text-decoration-none" title="${prop.formattedlabel}">
+                <div id="${id}" class="annotation-content text-nowrap text-truncate">
+                ${prop.icon != '' ? `<i class="${prop.icon} fs-unset iv-mr-1"></i>` : ''}
+                ${prop.formattedlabel}</div>
+                </a>`);
+            wrapper.css(position);
+            wrapper.attr({
+                'data-position': prop.position,
+                'data-color': prop.color,
+            });
+            $videoWrapper.append(wrapper);
+            recalculatingSize(wrapper);
+        };
+
         /**
          * Render items on the annotation canvas.
          * @param {Array} elements array of elements to render
@@ -1192,6 +1227,9 @@ export default class Annotation extends Base {
                         case 'video':
                         case 'audio':
                             renderVideo(wrapper, item, prop, id, position);
+                            break;
+                        case 'link':
+                            renderLink(wrapper, item, prop, id, position);
                             break;
                     }
 

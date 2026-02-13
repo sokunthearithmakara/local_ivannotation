@@ -188,3 +188,99 @@
     background: url([[pix:local_ivannotation|volume]]) no-repeat center center;
     background-size: 70%;
 }
+
+.annotation-wrapper[data-type="link"] {
+    max-width: 50% !important;
+    width: unset !important;
+    right: 0.5rem !important;
+    top: 0.5rem !important;
+    left: unset !important;
+    height: auto !important;
+    text-align: right;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.annotation-wrapper[data-type="link"][data-position="bottom"] {
+    top: unset !important;
+    bottom: 0.5rem !important;
+}
+
+.annotation-wrapper[data-type="link"] a {
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    height: 100%;
+    position: relative;
+    display: flex;
+    padding: 5px 10px;
+    align-items: center;
+    border-radius: 1rem;
+    font-size: 12px;
+    line-height: 1.5;
+    justify-content: flex-end;
+    width: max-content;
+    max-width: 100%;
+}
+
+.annotation-wrapper[data-type="link"][data-color="light"] a {
+    background: rgba(255, 255, 255, 0.7);
+    color: #000;
+}
+
+.annotation-wrapper[data-type="link"] .annotation-content {
+    text-align: right !important;
+}
+
+@keyframes slidePauseFade {
+    0% {
+        transform: translateX(120%);
+        opacity: 0;
+    }
+    /* Slide in complete at ~0.5s (approx 8%) */
+    8% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    /* Hold until 5.5s (approx 92%) */
+    92% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    /* Fade out complete at 6s */
+    100% {
+        transform: translateX(0);
+        opacity: 0;
+    }
+}
+
+@keyframes slidePauseFadeRTL {
+    0% {
+        transform: translateX(-120%);
+        opacity: 0;
+    }
+    /* Slide in complete at ~0.5s (approx 8%) */
+    8% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    /* Hold until 5.5s (approx 92%) */
+    92% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    /* Fade out complete at 6s */
+    100% {
+        transform: translateX(0);
+        opacity: 0;
+    }
+}
+
+.annotation-wrapper[data-type="link"] a.show {
+    animation: slidePauseFade 10s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* For RTL languages, slide from left instead of right */
+.dir-rtl .annotation-wrapper[data-type="link"] a.show {
+    animation: slidePauseFadeRTL 10s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
