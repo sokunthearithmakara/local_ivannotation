@@ -1101,8 +1101,12 @@ export default class Annotation extends Base {
                 'data-position': prop.position,
                 'data-color': prop.color,
             });
+            if ($videoWrapper.outerWidth() > 1000) {
+                wrapper.find('a').css({
+                    'font-size': '16px',
+                });
+            }
             $videoWrapper.append(wrapper);
-            recalculatingSize(wrapper);
         };
 
         /**
