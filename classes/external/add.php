@@ -32,7 +32,6 @@ require_once($CFG->libdir . '/externallib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class add extends external_api {
-
     /**
      * Describes the parameters for local_ivannotation_add
      *

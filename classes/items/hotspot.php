@@ -180,4 +180,3 @@ class hotspot extends \core_form\dynamic_form {
         ]);
     }
 }
-

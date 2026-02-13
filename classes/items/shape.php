@@ -221,4 +221,3 @@ class shape extends \core_form\dynamic_form {
         ]);
     }
 }
-

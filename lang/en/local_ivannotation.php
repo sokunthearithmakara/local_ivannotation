@@ -50,6 +50,7 @@ $string['dangeroutline'] = 'Danger outline';
 $string['dark'] = 'Dark';
 $string['darkoutline'] = 'Dark outline';
 $string['defaultfont'] = 'Default';
+$string['dismissable'] = 'Dismissable';
 $string['durationinminute'] = 'Duration (in minute)';
 $string['editinlineannotation'] = 'Edit {$a}';
 $string['file'] = 'File upload';
@@ -133,5 +134,3 @@ $string['video'] = 'Video';
 $string['videofile'] = 'Video file';
 $string['warning'] = 'Warning';
 $string['warningoutline'] = 'Warning outline';
-$string['dismissable'] = 'Dismissable';
-
