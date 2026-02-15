@@ -101,6 +101,11 @@ class main extends \ivplugin_richtext\main {
                         $item->properties->content->text,
                         ENT_QUOTES | ENT_SUBSTITUTE
                     );
+                } else if ($item->type == "link") {
+                    $item->properties->formattedlabel = format_string($item->properties->label);
+                } else if ($item->type == "message") {
+                    $item->properties->formattedtitle = format_string($item->properties->title);
+                    $item->properties->formatteddesc = format_text($item->properties->desc, FORMAT_PLAIN);
                 }
                 return $item;
             }, $items);

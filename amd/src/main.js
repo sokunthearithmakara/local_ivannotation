@@ -221,9 +221,10 @@ export default class Annotation extends Base {
                         }
                     }
                 }
-                if (x.type == 'link' && !self.isEditMode()) {
-                    x.self.find('a').addClass('show');
+                if ((x.type == 'link' || x.type == 'message') && !self.isEditMode()) {
+                    x.self.find('a, .message-wrapper').addClass('show');
                 }
+
                 return x.id;
             });
 
@@ -235,7 +236,7 @@ export default class Annotation extends Base {
                         video.pause();
                     }
                 }
-                if (x.type == 'link' && !self.isEditMode()) {
+                if ((x.type == 'link' || x.type == 'message') && !self.isEditMode()) {
                     x.self.find('a').removeClass('show');
                 }
                 return x.id;
@@ -293,11 +294,12 @@ export default class Annotation extends Base {
                 return;
             }
 
-            let links = annos.filter(x => x.type == 'link' && x.start <= currentTime && x.end >= currentTime);
+            let links = annos.filter(x => (x.type == 'link' || x.type == 'message')
+                && x.start <= currentTime && x.end >= currentTime);
             links.forEach(x => {
-                x.self.find('a').removeClass('show');
+                x.self.find('a, .message-wrapper').removeClass('show');
                 setTimeout(function() {
-                    x.self.find('a').addClass('show');
+                    x.self.find('a, .message-wrapper').addClass('show');
                 }, 500);
             });
         });
@@ -370,6 +372,12 @@ export default class Annotation extends Base {
                 'type': 'link',
                 'mediatype': 'link',
                 'label': M.util.get_string('externallink', 'local_ivannotation'),
+            },
+            {
+                'icon': 'bi bi-bell',
+                'type': 'message',
+                'mediatype': 'message',
+                'label': M.util.get_string('message', 'local_ivannotation'),
             },
 
         ];
@@ -1115,6 +1123,33 @@ export default class Annotation extends Base {
             $videoWrapper.append(wrapper);
         };
 
+        const renderMessage = (wrapper, item, prop, id, position) => {
+            wrapper.append(`<${prop.url != '' ? `a href="${prop.url}" target="_blank" ` : 'div'}
+                 class="text-decoration-none message-wrapper p-3"
+                 title="${prop.formattedtitle}">
+                <div id="${id}" class="annotation-content d-flex">
+                ${prop.icon != '' ? `<i class="${prop.icon} iv-mr-2"></i>` : ''}
+                <div>
+                ${prop.formattedtitle ? `<div class="iv-font-weight-bold mb-1">${prop.formattedtitle}</div>` : ''}
+                <div class="small">${prop.formatteddesc}</div>
+                </div></div>
+                ${prop.url != '' ? `<i class="bi bi-arrow-up-right fs-unset link-icon"></i>` : ''}
+                <i class="bi bi-pause-fill message-pause fs-25px"></i>
+                ${prop.url != '' ? `</a>` : '</div>'}`);
+            wrapper.css(position);
+            wrapper.attr({
+                'data-position': prop.position,
+                'data-color': prop.color,
+                'data-viewport': prop.viewport,
+            });
+            if ($videoWrapper.outerWidth() > 1000) {
+                wrapper.find('.message-wrapper').css({
+                    'font-size': '16px',
+                });
+            }
+            $videoWrapper.append(wrapper);
+        };
+
         /**
          * Render items on the annotation canvas.
          * @param {Array} elements array of elements to render
@@ -1241,10 +1276,14 @@ export default class Annotation extends Base {
                         case 'link':
                             renderLink(wrapper, item, prop, id, position);
                             break;
+                        case 'message':
+                            renderMessage(wrapper, item, prop, id, position);
+                            break;
                     }
 
                     if (type != 'shape') {
-                        wrapper.on('mouseover', function() {
+                        wrapper.off('mouseover.Annotation');
+                        wrapper.on('mouseover.Annotation', function() {
                             if (!$(this).hasClass('resizable')) {
                                 return;
                             }
@@ -1503,8 +1542,9 @@ export default class Annotation extends Base {
                         let wrapper = $(this);
                         let type = wrapper.attr('data-type');
                         switch (type) {
-                            case 'navigation':
-                            case 'image':
+                            case 'message':
+                                await self.player.pause();
+                                break;
                             case 'hotspot':
                                 await self.player.pause();
                                 var hotspotid = wrapper.attr('data-item');
