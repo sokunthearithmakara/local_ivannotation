@@ -237,7 +237,7 @@ export default class Annotation extends Base {
                     }
                 }
                 if ((x.type == 'link' || x.type == 'message') && !self.isEditMode()) {
-                    x.self.find('a').removeClass('show');
+                    x.self.find('a, .message-wrapper').removeClass('show');
                 }
                 return x.id;
             });
@@ -297,10 +297,7 @@ export default class Annotation extends Base {
             let links = annos.filter(x => (x.type == 'link' || x.type == 'message')
                 && x.start <= currentTime && x.end >= currentTime);
             links.forEach(x => {
-                x.self.find('a, .message-wrapper').removeClass('show');
-                setTimeout(function() {
-                    x.self.find('a, .message-wrapper').addClass('show');
-                }, 500);
+                x.self.find('a, .message-wrapper').addClass('show');
             });
         });
     }

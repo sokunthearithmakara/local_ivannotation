@@ -423,3 +423,23 @@
 [data-type="link"]) {
     display: none;
 }
+
+@media (max-width: 576px) {
+    .annotation-wrapper[data-type="message"][data-viewport][data-position] {
+        top: unset !important;
+        bottom: calc(60px + 1rem) !important;
+        left: unset !important;
+        right: unset !important;
+        justify-content: center !important;
+        position: fixed !important;
+    }
+
+    .annotation-wrapper[data-type="message"][data-viewport][data-position] .message-wrapper {
+        width: 100% !important;
+        max-width: calc(100vw - 2rem) !important;
+    }
+
+    .annotation-wrapper[data-type="message"][data-viewport][data-position] .message-wrapper.show {
+        animation: slideFromBottomFade 10s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+}
