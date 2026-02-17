@@ -531,7 +531,8 @@ export default class Annotation extends Base {
             } else {
                 activeids = activeids.map(id => parseInt(id));
             }
-            let timeline = $('#timeline #annotation-timeline');
+            let $timelinewrapper = $('#timeline #timeline-items-wrapper');
+            let timeline = $timelinewrapper.find('#annotation-timeline');
             timeline.empty();
             elements.sort((a, b) => b.position['z-index'] - a.position['z-index']);
             let count = 0;
@@ -554,7 +555,7 @@ export default class Annotation extends Base {
                 if (count == elements.length) {
                     timeline.append(timelineHTML);
                     // Initialize the draggable and resizable for each item on the timeline.
-                    $('.annotation-timeline-item').draggable({
+                    timeline.find('.annotation-timeline-item').draggable({
                         'axis': 'x',
                         'containment': '#annotation-timeline',
                         'cursor': 'move',
@@ -564,13 +565,13 @@ export default class Annotation extends Base {
                             if (!$(this).hasClass('active')) {
                                 $(this).trigger('click');
                             }
-                            let $selected = $('.annotation-timeline-item.active');
+                            let $selected = timeline.find('.annotation-timeline-item.active');
                             $selected.addClass('no-pointer-events');
                             $selected.each(function() {
                                 $(this).attr('data-startPosition', $(this).position());
                             });
                             timestampScrollbar($(this).attr('data-start'));
-                            $('#timeline-items').addClass('no-pointer-events');
+                            $timelinewrapper.find('#timeline-items').addClass('no-pointer-events');
                         },
                         'drag': async function(e, ui) {
                             let timestamp = (ui.position.left) / $('#annotation-timeline').width() * self.totaltime
@@ -592,15 +593,15 @@ export default class Annotation extends Base {
                             $('#position-marker').css('left', `${left}%`);
                             $('#vseek #bar #position').text(convertSecondsToMMSS(timestamp));
 
-                            let $selected = $('.annotation-timeline-item.active');
+                            let $selected = timeline.find('.annotation-timeline-item.active');
                             const distance = ui.originalPosition.left - ui.position.left;
                             $selected.not(this).each(function() {
                                 let $this = $(this);
                                 const position = $this.attr('data-startPosition');
                                 $this.css({
-                                    left: ((position.left - distance) / $('#annotation-timeline').width()) * 100 + '%',
+                                    left: ((position.left - distance) / timeline.width()) * 100 + '%',
                                 });
-                                let timestamp = ($this.position().left / $('#annotation-timeline').width()) * self.totaltime
+                                let timestamp = ($this.position().left / timeline.width()) * self.totaltime
                                     + self.start;
                                 let duration = $this.attr('data-end') - $this.attr('data-start');
                                 let $annowrapper = $videoWrapper
@@ -615,7 +616,7 @@ export default class Annotation extends Base {
                         'stop': function() {
                             setTimeout(function() {
                                 $('#cursorbar, #position-marker').remove();
-                                $('#timeline-items').removeClass('no-pointer-events');
+                                $timelinewrapper.find('#timeline-items').removeClass('no-pointer-events');
                                 $(this).removeClass('no-pointer-events');
                             }, 200);
                             let $selected = $('.annotation-timeline-item.active');
@@ -627,7 +628,7 @@ export default class Annotation extends Base {
                                 let elem = $videoWrapper.find(`.annotation-wrapper[data-item="${elementid}"]`);
                                 let prop = item.properties;
                                 let duration = prop.end - prop.start;
-                                prop.start = (($this.position().left) / $('#annotation-timeline').width() * self.totaltime)
+                                prop.start = (($this.position().left) / timeline.width() * self.totaltime)
                                     + self.start;
                                 prop.start = self.roundToTwo(prop.start);
                                 prop.end = prop.start + duration;
@@ -646,7 +647,7 @@ export default class Annotation extends Base {
                         },
                     });
 
-                    $('.annotation-timeline-item').resizable({
+                    timeline.find('.annotation-timeline-item').resizable({
                         'handles': 'e, w',
                         'containment': 'parent',
                         'grid': [1, 0],
@@ -662,7 +663,7 @@ export default class Annotation extends Base {
                                 $(this).attr('data-originalEnd', $(this).attr('data-end'));
                             });
                             timestampScrollbar($(this).attr('data-start'));
-                            $('#timeline-items').addClass('no-pointer-events');
+                            $timelinewrapper.find('#timeline-items').addClass('no-pointer-events');
                         },
                         'resize': async function(e, ui) {
                             let timestamp = 0;
@@ -671,10 +672,10 @@ export default class Annotation extends Base {
                                     ui.position.left = 0;
                                 }
                                 timestamp = ((ui.position.left)
-                                    / $('#annotation-timeline').width()) * self.totaltime + self.start;
+                                    / timeline.width()) * self.totaltime + self.start;
                             } else {
                                 timestamp = ((ui.position.left + ui.size.width)
-                                    / $('#annotation-timeline').width()) * self.totaltime + self.start;
+                                    / timeline.width()) * self.totaltime + self.start;
                             }
 
                             let left = (timestamp - self.start) / self.totaltime * 100;
@@ -682,9 +683,9 @@ export default class Annotation extends Base {
                             $('#position-marker').css('left', `${left}%`);
                             $('#vseek #bar #position').text(convertSecondsToMMSS(timestamp));
 
-                            const newStart = ((ui.position.left) / $('#annotation-timeline').width()) * self.totaltime
+                            const newStart = ((ui.position.left) / timeline.width()) * self.totaltime
                                 + self.start;
-                            let newEnd = ((ui.position.left + ui.size.width) / $('#annotation-timeline').width())
+                            let newEnd = ((ui.position.left + ui.size.width) / timeline.width())
                                 * self.totaltime + self.start;
                             $('#s-position').text(convertSecondsToMMSS(newStart));
                             $('#e-position').text(convertSecondsToMMSS(newEnd));
@@ -699,9 +700,9 @@ export default class Annotation extends Base {
                             }
 
                             // Handle other selected elements: same position and width
-                            let leftPercentage = ui.position.left / $('#annotation-timeline').width() * 100;
-                            let newWidth = ui.size.width / $('#annotation-timeline').width() * 100;
-                            let $selected = $('.annotation-timeline-item.active').not(this);
+                            let leftPercentage = ui.position.left / timeline.width() * 100;
+                            let newWidth = ui.size.width / timeline.width() * 100;
+                            let $selected = timeline.find('.annotation-timeline-item.active').not(this);
                             $selected.each(function() {
                                 let $this = $(this);
                                 $this.css({
@@ -725,11 +726,11 @@ export default class Annotation extends Base {
                                 $('#cursorbar, #position-marker').remove();
                                 $('#timeline-items').removeClass('no-pointer-events');
                             }, 200);
-                            const newStart = ((ui.position.left) / $('#annotation-timeline').width()) * self.totaltime
+                            const newStart = ((ui.position.left) / timeline.width()) * self.totaltime
                                 + self.start;
-                            const newEnd = ((ui.position.left + ui.size.width) / $('#annotation-timeline').width())
+                            const newEnd = ((ui.position.left + ui.size.width) / timeline.width())
                                 * self.totaltime + self.start;
-                            let $selected = $('.annotation-timeline-item.active');
+                            let $selected = timeline.find('.annotation-timeline-item.active');
                             $selected.each(function() {
                                 let $this = $(this);
                                 let elementid = $this.attr('data-item');
@@ -763,6 +764,7 @@ export default class Annotation extends Base {
                     self.dispatchEvent('timeupdate', {time: currentTime});
                     return true;
                 }
+                return true;
             });
         };
 
@@ -874,8 +876,9 @@ export default class Annotation extends Base {
                      target="_blank"><i class="bi bi-paperclip fs-unset"></i>${prop.formattedlabel != "" ?
                         `<span style="margin-left:0.25em;">${prop.formattedlabel}` : ''}</a>`;
             } else if (type == 'mute') {
-                wrapperhtml = `<span id="${id}" tabindex="0" class="btn annotation-content text-nowrap
-                ${prop.hidden == '1' ? (self.isEditMode() ? 'opacity-50' : 'd-none') : ''}">
+                wrapperhtml = `<span id="${id}" tabindex="0" class="btn annotation-content text-nowrap`
+                // eslint-disable-next-line no-nested-ternary
+                + `${prop.hidden == '1' ? (self.isEditMode() ? 'opacity-50' : 'd-none') : ''}">
                 <i class="bi bi-volume-mute fs-unset"></i></span>`;
             }
             wrapper.append(`<div class="d-flex h-100">${wrapperhtml}</div>`);
