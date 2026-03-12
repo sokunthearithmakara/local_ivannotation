@@ -56,6 +56,7 @@ class text extends \core_form\dynamic_form {
         $data->end = $this->optional_param('end', null, PARAM_FLOAT);
         $data->label = $this->optional_param('label', null, PARAM_TEXT);
         $data->url = $this->optional_param('url', null, PARAM_URL);
+        $data->currentwindow = $this->optional_param('currentwindow', 0, PARAM_INT);
         $data->bold = $this->optional_param('bold', null, PARAM_INT);
         $data->italic = $this->optional_param('italic', null, PARAM_INT);
         $data->underline = $this->optional_param('underline', null, PARAM_INT);
@@ -135,6 +136,15 @@ class text extends \core_form\dynamic_form {
             "/\b(?:(?:https?|ftp):\/\/|www\.)[-a-z0-9+&@#\/%?=~_|!:,.;]*\.[a-z]{2,}[-a-z0-9+&@#\/%=~_|]*/i",
             'client'
         );
+        $mform->addElement(
+            'advcheckbox',
+            'currentwindow',
+            '',
+            get_string('currentwindow', 'local_ivannotation'),
+            ['group' => 1],
+            [0, 1]
+        );
+        $mform->hideIf('currentwindow', 'url', 'eq', '');
 
         $mform->addElement(
             'text',

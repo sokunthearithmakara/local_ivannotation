@@ -84,6 +84,7 @@ class media extends \core_form\dynamic_form {
         $data->size = $this->optional_param('size', 0, PARAM_INT);
         $data->vposition = $this->optional_param('vposition', 'bottom-right', PARAM_TEXT);
         $data->dismissable = $this->optional_param('dismissable', 0, PARAM_INT);
+        $data->currentwindow = $this->optional_param('currentwindow', 0, PARAM_INT);
         $this->set_data($data);
     }
 
@@ -242,6 +243,18 @@ class media extends \core_form\dynamic_form {
             'client'
         );
         $mform->hideIf('gotourl', 'type', 'neq', 'image');
+
+        // Open in current window.
+        $mform->addElement(
+            'advcheckbox',
+            'currentwindow',
+            '',
+            get_string('currentwindow', 'local_ivannotation'),
+            ['group' => 1],
+            [0, 1]
+        );
+        $mform->hideIf('currentwindow', 'type', 'neq', 'image');
+        $mform->hideIf('currentwindow', 'gotourl', 'eq', '');
 
         $element = [];
         $element[] = $mform->createElement(

@@ -785,7 +785,8 @@ export default class Annotation extends Base {
             const parts = prop.timestamp.split(':');
             const timestamp = parts.length > 1 ? Number(parts[0]) * 3600 + Number(parts[1]) * 60 + Number(parts[2]) : -1;
             if (prop.gotourl != '') {
-                wrapper.append(`<a href="${prop.gotourl}" target="_blank"><img src="${prop.url}" id="${id}"
+                wrapper.append(`<a href="${prop.gotourl}" ${prop.currentwindow != 1 ? 'target="_blank"' : ''}>
+                    <img src="${prop.url}" id="${id}"
                          class="annotation-content w-100 ${prop.shadow == '1' ? 'shadow' : ''}"
                          ${prop.rounded == 1 ? 'style="border-radius:1em;"' : ''} alt="${prop.formattedalttext}"/></a>`);
             } else {
@@ -906,7 +907,7 @@ export default class Annotation extends Base {
             if (prop.url != undefined && prop.url != '') {
                 wrapper.append(`<a id="${id}"
                      class="annotation-content text-nowrap ${prop.shadow == '1' ? 'text-shadow' : ''} d-block"
-                      href="${prop.url}" target="_blank">${prop.formattedlabel}</a>`);
+                      href="${prop.url}" ${prop.currentwindow != 1 ? 'target="_blank"' : ''}>${prop.formattedlabel}</a>`);
             } else {
                 if (!self.isEditMode() || !$('#content-region').hasClass('no-pointer-events')) {
                     wrapper.addClass('no-pointer');
@@ -951,7 +952,7 @@ export default class Annotation extends Base {
             if (prop.url != undefined && prop.url != '') {
                 wrapper.append(`<a id="${id}"
                              class="annotation-content d-block ${prop.shadow == '1' ? 'text-shadow' : ''}"
-                              href="${prop.url}" target="_blank">${textblock}</a>`);
+                              href="${prop.url}" ${prop.currentwindow != 1 ? 'target="_blank"' : ''}>${textblock}</a>`);
                 wrapper.addClass('clickable');
             } else {
                 if (!self.isEditMode() || !$('#content-region').hasClass('no-pointer-events')) {
@@ -992,9 +993,9 @@ export default class Annotation extends Base {
             const parts = prop.timestamp.split(':');
             const timestamp = parts.length > 1 ? Number(parts[0]) * 3600 + Number(parts[1]) * 60 + Number(parts[2]) : -1;
             if (prop.gotourl != '') {
-                wrapper.append(`<a href="${prop.gotourl}" target="_blank"><div id="${id}"
+                wrapper.append(`<a href="${prop.gotourl}" ${prop.currentwindow != 1 ? 'target="_blank"' : ''}><div id="${id}"
                          class="annotation-content ${prop.shadow == '1' ? 'shadow' : ''}"
-                          style="width: 100%; height: 100%;"></div></a>`);
+                         style="width: 100%; height: 100%;"></div></a>`);
                 wrapper.addClass('clickable');
             } else {
                 if (!self.isEditMode()) {
@@ -1056,26 +1057,15 @@ export default class Annotation extends Base {
                     let attr = {
                         'tabindex': -1,
                     };
-                    if (self.isBS5) {
-                        attr['data-bs-trigger'] = 'manual';
-                        attr['data-bs-boundary'] = 'viewport';
-                        attr['data-bs-placement'] = 'auto';
-                        attr['data-bs-html'] = 'true';
-                        attr['data-bs-content'] = '<div class="loader"></div>';
-                        attr['data-bs-title'] = prop.formattedtitle
-                            + `<i class="bi bi-x-circle-fill iv-ml-auto popover-dismiss cursor-pointer"
-                                     style="font-size:1.5em;"></i>`;
-                    } else {
-                        attr['data-trigger'] = 'manual';
-                        attr['data-boundary'] = 'viewport';
-                        attr['data-placement'] = 'auto';
-                        attr['data-html'] = 'true';
-                        attr['data-content'] = '<div class="loader"></div>';
-                        attr['data-title'] = prop.formattedtitle
-                            + `<i class="bi bi-x-circle-fill iv-ml-auto popover-dismiss cursor-pointer"
-                                     style="font-size:1.5em;"></i>`;
-                    }
-
+                    let affix = self.isBS5 ? '-bs' : '';
+                    attr['data' + affix + '-trigger'] = 'manual';
+                    attr['data' + affix + '-boundary'] = 'viewport';
+                    attr['data' + affix + '-placement'] = 'auto';
+                    attr['data' + affix + '-html'] = 'true';
+                    attr['data' + affix + '-content'] = '<div class="loader"></div>';
+                    attr['data' + affix + '-title'] = prop.formattedtitle
+                        + `<i class="bi bi-x-circle-fill iv-ml-auto popover-dismiss cursor-pointer"
+                                 style="font-size:1.5em;"></i>`;
                     wrapper.attr(attr);
 
                     wrapper.popover({

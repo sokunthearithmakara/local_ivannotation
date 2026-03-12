@@ -149,3 +149,4 @@ $string['viewport'] = 'Viewport';
 $string['warning'] = 'Warning';
 $string['warningoutline'] = 'Warning outline';
 $string['window'] = 'Window';
+$string['currentwindow'] = 'Open in current window';

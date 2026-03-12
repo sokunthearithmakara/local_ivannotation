@@ -60,6 +60,7 @@ class shape extends \core_form\dynamic_form {
         $data->rounded = $this->optional_param('rounded', null, PARAM_INT);
         $data->shadow = $this->optional_param('shadow', 0, PARAM_INT);
         $data->gotourl = $this->optional_param('gotourl', null, PARAM_URL);
+        $data->currentwindow = $this->optional_param('currentwindow', 0, PARAM_INT);
         $data->timestamp = $this->optional_param('timestamp', null, PARAM_TEXT);
         $data->start = $this->optional_param('start', null, PARAM_FLOAT);
         $data->end = $this->optional_param('end', null, PARAM_FLOAT);
@@ -118,6 +119,15 @@ class shape extends \core_form\dynamic_form {
             "/\b(?:(?:https?|ftp):\/\/|www\.)[-a-z0-9+&@#\/%?=~_|!:,.;]*\.[a-z]{2,}[-a-z0-9+&@#\/%=~_|]*/i",
             'client'
         );
+        $mform->addElement(
+            'advcheckbox',
+            'currentwindow',
+            '',
+            get_string('currentwindow', 'local_ivannotation'),
+            ['group' => 1],
+            [0, 1]
+        );
+        $mform->hideIf('currentwindow', 'gotourl', 'eq', '');
 
         $element = [];
         $element[] = $mform->createElement(
