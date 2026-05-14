@@ -185,7 +185,9 @@
 }
 
 .path-mod-interactivevideo #annotation-canvas .annotation-wrapper[data-type="audio"] .annotation-content {
-    background: url([[pix:local_ivannotation|volume]]) no-repeat center center;
+    background-image: url([[pix:local_ivannotation|volume]]);
+    background-repeat: no-repeat;
+    background-position: center;
     background-size: 70%;
 }
 
