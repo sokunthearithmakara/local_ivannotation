@@ -73,7 +73,7 @@ class media extends \core_form\dynamic_form {
             file_copy_file_to_file_area($url, $filename, $newdraftitemid);
         }
 
-        $data->media = $newdraftitemid;
+        $data->media = isset($newdraftitemid) ? $newdraftitemid : null;
         $data->rounded = $this->optional_param('rounded', 0, PARAM_INT);
         $data->muted = $this->optional_param('muted', 0, PARAM_INT);
         $data->shadow = $this->optional_param('shadow', 0, PARAM_INT);
@@ -124,7 +124,7 @@ class media extends \core_form\dynamic_form {
             }
         }
         $fromform->formattedalttext = format_string($fromform->alttext);
-        $fromform->formattedlabel = format_string($fromform->label);
+        $fromform->formattedlabel = format_string(isset($fromform->label) ? $fromform->label : '');
         return $fromform;
     }
 
@@ -162,7 +162,7 @@ class media extends \core_form\dynamic_form {
         }
 
         $mform->addElement('hidden', 'type', $type);
-
+        $mform->setType('type', PARAM_TEXT);
         $mform->addElement('text', 'label', get_string('label', 'local_ivannotation'), ['size' => 100]);
         $mform->setType('label', PARAM_TEXT);
         $mform->hideIf('label', 'type', 'neq', 'file');

@@ -92,7 +92,7 @@ class link extends \core_form\dynamic_form {
 
         // URL.
         $mform->addElement('text', 'url', get_string('url', 'local_ivannotation'), ['size' => 100]);
-        $mform->setType('text', PARAM_URL);
+        $mform->setType('url', PARAM_URL);
         $mform->addRule(
             'url',
             get_string('invalidurlformat', 'local_ivannotation'),

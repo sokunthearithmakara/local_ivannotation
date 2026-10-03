@@ -146,7 +146,7 @@ class textblock extends \core_form\dynamic_form {
         ]);
 
         $mform->addElement('text', 'url', get_string('url', 'local_ivannotation'), ['size' => 100]);
-        $mform->setType('text', PARAM_URL);
+        $mform->setType('url', PARAM_URL);
         $mform->addRule(
             'url',
             get_string('invalidurlformat', 'local_ivannotation'),
@@ -249,7 +249,7 @@ class textblock extends \core_form\dynamic_form {
         $mform->setDefault('borderwidth', 1);
 
         $mform->addElement('hidden', 'resizable', 0);
-
+        $mform->setType('resizable', PARAM_INT);
         $this->set_display_vertical();
     }
 
@@ -259,7 +259,7 @@ class textblock extends \core_form\dynamic_form {
      */
     public function process_dynamic_submission() {
         $fromform = $this->get_data();
-        $fromform->formattedlabel = format_string($fromform->label);
+        $fromform->formattedlabel = format_string(isset($fromform->label) ? $fromform->label : '');
         return $fromform;
     }
 

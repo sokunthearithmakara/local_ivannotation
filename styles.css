@@ -19,7 +19,7 @@
     width: 100%;
     text-align: right;
     padding: 0 0.5rem;
-    background: #fff;
+    background: var(--bs-white, #fff);
     height: 40px;
     left: 0;
     border-radius: 0.5rem;

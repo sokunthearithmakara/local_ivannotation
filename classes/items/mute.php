@@ -82,7 +82,7 @@ class mute extends \core_form\dynamic_form {
             ['group' => 1],
             [0, 1]
         );
-
+        $mform->setType('hidden', PARAM_INT);
         $this->set_display_vertical();
     }
 

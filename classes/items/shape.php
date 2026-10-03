@@ -197,7 +197,7 @@ class shape extends \core_form\dynamic_form {
         $mform->setDefault('opacity', 100);
 
         $mform->addElement('hidden', 'resizable', 0);
-
+        $mform->setType('resizable', PARAM_INT);
         $this->set_display_vertical();
     }
 

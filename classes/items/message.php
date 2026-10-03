@@ -129,7 +129,7 @@ class message extends \core_form\dynamic_form {
             'video' => get_string('video', 'local_ivannotation'),
         ]);
         $mform->setDefault('viewport', 'window');
-
+        $mform->setType('viewport', PARAM_TEXT);
         // Color.
         $mform->addElement('select', 'color', get_string('color', 'local_ivannotation'), [
             'dark' => get_string('dark', 'local_ivannotation'),
@@ -147,7 +147,7 @@ class message extends \core_form\dynamic_form {
      */
     public function process_dynamic_submission() {
         $fromform = $this->get_data();
-        $fromform->formattedtitle = format_string($fromform->title);
+        $fromform->formattedtitle = format_string(isset($fromform->title) ? $fromform->title : '');
         $fromform->formatteddesc = format_text($fromform->desc, FORMAT_PLAIN);
         return $fromform;
     }

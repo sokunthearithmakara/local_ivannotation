@@ -114,7 +114,7 @@ class hotspot extends \core_form\dynamic_form {
         $mform->disabledIf('openbydefault', 'usemodal', 'checked');
 
         $mform->addElement('text', 'url', get_string('url', 'local_ivannotation'), ['size' => 100]);
-        $mform->setType('text', PARAM_URL);
+        $mform->setType('url', PARAM_URL);
         $mform->addRule(
             'url',
             get_string('invalidurlformat', 'local_ivannotation'),
@@ -145,7 +145,7 @@ class hotspot extends \core_form\dynamic_form {
         $mform->setDefault('opacity', 100);
 
         $mform->addElement('hidden', 'resizable', 0);
-
+        $mform->setType('resizable', PARAM_INT);
         $this->set_display_vertical();
     }
 
