@@ -870,7 +870,7 @@ export default class Annotation extends Base {
             if (type == 'file') {
                 wrapperhtml = `<a id="${id}"
                     class="btn ${prop.style} ${prop.rounded == '1' ? 'btn-rounded' : 'iv-rounded-0'}
-                    annotation-content text-nowrap ${prop.shadow == '1' ? 'shadow' : ''} rotatey-180" href="${prop.url}"
+                    annotation-content text-nowrap ${prop.shadow == '1' ? 'shadow' : ''}" href="${prop.url}"
                      target="_blank"><i class="bi bi-paperclip fs-unset"></i>${prop.formattedlabel != "" ?
                         `<span style="margin-left:0.25em;">${prop.formattedlabel}` : ''}</a>`;
             } else if (type == 'mute') {
@@ -1076,7 +1076,7 @@ export default class Annotation extends Base {
                                  <h3 class="popover-header d-flex justify-content-between"></h3>
                                  <div class="popover-body rounded"></div>${prop.url != '' ?
                                 `<div class="popup-footer bg-light p-2 rounded-bottom"><a href="${prop.url}"
-                                      class="d-block w-100 iv-text-right rotatex-360" target="_blank">
+                                      class="d-block w-100 iv-text-right" target="_blank">
                                       <i class="bi bi-arrow-right"><i></i></i></a></div>` : ''}</div>`,
                     });
 
@@ -1561,7 +1561,7 @@ export default class Annotation extends Base {
                                     <div class="loader"></div>
                                     </div>
                                     ${url != '' ? `<div class="modal-footer bg-light p-2 rounded-bottom">
-                                        <a href="${url}" class="d-block w-100 iv-text-right rotatex-360" target="_blank">
+                                        <a href="${url}" class="d-block w-100 iv-text-right" target="_blank">
                                         <i class="bi bi-arrow-right"><i></i></i></a></div>` : ''}
                                     </div>
                                 </div>
