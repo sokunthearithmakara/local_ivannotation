@@ -2567,7 +2567,8 @@ export default class Annotation extends Base {
         listItem.attr('data-id', item.id);
         listItem.removeAttr('data-timestamp');
         listItem.find('.timestamp').remove();
-        listItem.find('.title').text(M.util.get_string('pluginname', 'local_ivannotation')).addClass('no-pointer text-dark');
+        listItem.find('.title').text(M.util.get_string('pluginname', 'local_ivannotation')).addClass('no-pointer text-dark')
+            .removeClass('text-primary text-secondary cursor-pointer');
         listItem.find('.btn.xp').remove();
         listItem.find('.type-icon i').addClass(this.prop.icon);
         listItem.find('.type-icon').attr('title', this.prop.title);
